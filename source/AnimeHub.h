@@ -23,6 +23,8 @@ public:
     AnimeHub(QWidget *parent = nullptr);
     ~AnimeHub();
 
+    static QNetworkAccessManager& GetNetworkManager();
+
     void Load();
     void Save();
 
@@ -47,11 +49,12 @@ public slots:
 
 private:
     Ui::AnimeHub *ui;
-    QNetworkAccessManager *manager = nullptr;
+    static QNetworkAccessManager *manager;
 
     QVector<Anime *> animes; // deprecated
 
     QMap<QString, QVector<Anime *>*> lists;
+
     QVector<AnimePreviewUI *> animeListPreviewListUIs;
 
     QVector<AnimePreviewUI *> animePreviewSearchUIs;

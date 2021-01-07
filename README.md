@@ -2,7 +2,7 @@
   
 Keep your anime lists on your computer with this desktop software.
 
-*Keep in mind this is currently a personnal project for learning purpose (C++/Qt), while I really want to finish it and do something nice, it might not be useful for everyone, see to goals of the project below*
+*Keep in mind this is currently a personnal project for learning purpose (C++/Qt), while I really want to finish it and do something nice, it might not be useful for everyone, see the goals of the project below*
 
 ## Goals of the project
 

@@ -17,3 +17,19 @@ const QString& Anime::GetDescription() const {
 const QString& Anime::GetSynopsis() const {
     return GetDescription();
 }
+
+const QString& Anime::GetCoverImageUrl() const {
+    return coverImageUrl;
+}
+
+void Anime::SetTitle(const QString& title) {
+    this->title = title;
+}
+
+void Anime::SetDescription(const QString& description) {
+    this->description = description;
+}
+
+void Anime::SetCoverImageByUrl(const QString& coverImageUrl) {
+    this->coverImageUrl = coverImageUrl;
+}
