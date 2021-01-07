@@ -27,18 +27,18 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets Network REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets Network REQUIRED)
 
-
+set(SOURCE_DIR source)
 
 set(PROJECT_SOURCES
-        main.cpp
-        AnimeHub.cpp
-        AnimeHub.h
-        AnimeHub.ui
-        Anime.cpp
-        Anime.h
-        AnimePreviewUI.cpp
-        AnimePreviewUI.h
-        AnimePreviewUI.ui
+        ${SOURCE_DIR}/main.cpp
+        ${SOURCE_DIR}/AnimeHub.cpp
+        ${SOURCE_DIR}/AnimeHub.h
+        ${SOURCE_DIR}/AnimeHub.ui
+        ${SOURCE_DIR}/Anime.cpp
+        ${SOURCE_DIR}/Anime.h
+        ${SOURCE_DIR}/AnimePreviewUI.cpp
+        ${SOURCE_DIR}/AnimePreviewUI.h
+        ${SOURCE_DIR}/AnimePreviewUI.ui
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
