@@ -1,0 +1,3 @@
+[submodule "libs/json-parser"]
+	path = libs/json-parser
+	url = https://github.com/VynDev/json-parser.git
