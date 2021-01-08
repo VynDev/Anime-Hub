@@ -1,15 +1,19 @@
 #include "AnimeHub.h"
 #include "./ui_AnimeHub.h"
-#include "Anime.h"
-#include <iostream>
+
 #include <QtNetwork/QHttpMultiPart>
 #include <QByteArray>
 #include <QFrame>
 #include <QPushButton>
 #include <QInputDialog>
 #include <QMenu>
+#include <QRegularExpression>
+#include <QRegularExpressionMatch>
+
+#include <iostream>
 #include "json-parser/JSON.h"
 #include "AnimePreviewUI.h"
+#include "Anime.h"
 
 const QString DefaultListName = "Default";
 
@@ -143,7 +147,7 @@ void AnimeHub::SearchAnime(const QString& animeName) {
                   hasNextPage\
                   perPage\
                 }\
-                media(id: $id, search: $search) {\
+                media(id: $id, search: $search, type: ANIME) {\
                   id\
                   title {\
                     romaji\
@@ -173,24 +177,34 @@ void AnimeHub::SearchAnime(const QString& animeName) {
             \"search\": \"" + QByteArray(animeName.toUtf8()) + "\"\
         }\
     }";
-
     QNetworkRequest request;
     request.setUrl(QUrl("https://graphql.anilist.co"));
     request.setRawHeader("Content-Type", "application/json");
     request.setRawHeader("Content-Length", QByteArray::number(body.size()));
 
     auto* reply = manager->post(request, body);
-
     connect(reply, &QNetworkReply::finished, [=] {
         if (reply->error()) {
             std::cout << "Error!" << std::endl;
             std::cout << reply->errorString().toStdString() << std::endl;
             std::cout << reply->error() << std::endl;
             QString answer = reply->readAll();
+            //QTextCodec *codec = QTextCodec::codecForName("UTF-8");
+           // QString stringg = codec->toUnicode(QByteArray(answer.toUtf8()));
             std::cout << answer.toStdString() << std::endl;
             return;
         }
         QString answer = reply->readAll();
+        QRegularExpression rx("(\\\\u([0-9a-fA-F]{4}))");
+        QRegularExpressionMatch rxMatch;
+        int pos = 0;
+        while ((rxMatch = rx.match(answer, pos)).hasMatch()) {
+            answer.replace(rxMatch.capturedStart(), 6, QChar(rxMatch.captured(2).toUShort(0, 16)));
+            pos = rxMatch.capturedStart() + 1;
+        }
+
+        answer.replace(QRegularExpression("\\\\(n|r)"), "");
+
         std::cout << "Response:" << std::endl << answer.toStdString() << std::endl;
 
         JSON::Object json(answer.toStdString(), JSON::SOURCE::CONTENT);
