@@ -149,6 +149,19 @@ void AnimeHub::SearchAnime(const QString& animeName) {
                     romaji\
                   }\
                   description\
+                  episodes\
+                  genres\
+                  status\
+                  startDate {\
+                    year\
+                    month\
+                    day\
+                  }\
+                  endDate {\
+                    year\
+                    month\
+                    day\
+                  }\
                   coverImage {\
                     large\
                  }\
@@ -197,14 +210,41 @@ void AnimeHub::SearchAnime(const QString& animeName) {
             QString title = QString::fromStdString(media->AsObject()["title"].AsObject()["romaji"].AsString());
             QString description = !media->AsObject()["description"].IsNull() ? QString::fromStdString(media->AsObject()["description"].AsString()) : "null";
             QString coverImageUrl = QString::fromStdString(media->AsObject()["coverImage"].AsObject()["large"].AsString()).replace("\\", "");
+            QString status = QString::fromStdString(media->AsObject()["status"].AsString());
+            int episodes = !media->AsObject()["episodes"].IsNull() ? media->AsObject()["episodes"].AsNumber() : -1;
+
+            JSON::Object& startDateJson = media->AsObject()["startDate"].AsObject();
+            int startYear = startDateJson["year"].IsNull() ? -1 : startDateJson["year"].AsNumber();
+            int startMonth = startDateJson["month"].IsNull() ? -1 : startDateJson["month"].AsNumber();
+            int startDay = startDateJson["day"].IsNull() ? -1 : startDateJson["day"].AsNumber();
+
+            JSON::Object& endDateJson = media->AsObject()["endDate"].AsObject();
+            int endYear = endDateJson["year"].IsNull() ? -1 : endDateJson["year"].AsNumber();
+            int endMonth = endDateJson["month"].IsNull() ? -1 : endDateJson["month"].AsNumber();
+            int endDay = endDateJson["day"].IsNull() ? -1 : endDateJson["day"].AsNumber();
 
             Anime *anime = new Anime(title);
             anime->SetDescription(description);
             anime->SetCoverImageByUrl(coverImageUrl);
+            for (int i = 0; i < media->AsObject()["genres"].AsArray().GetLenth(); ++i) {
+                anime->AddGenre(QString::fromStdString(media->AsObject()["genres"].AsArray()[i].AsString()));
+            }
+            anime->SetStatus(status);
+            anime->SetEpisodes(episodes);
+
+            anime->SetStartYear(startYear);
+            anime->SetStartMonth(startMonth);
+            anime->SetStartDay(startDay);
+
+            anime->SetEndYear(endYear);
+            anime->SetEndMonth(endMonth);
+            anime->SetEndDay(endDay);
 
             AnimePreviewUI *preview = new AnimePreviewUI(anime, this);
             animePreviewSearchUIs.push_back(preview);
             ui->animeSearchResult->addWidget(preview);
+
+
 
             SetupAnimePreviewSearchContextMenu(preview, anime);
         }

@@ -14,6 +14,20 @@ AnimePreviewUI::AnimePreviewUI(Anime* anime, QWidget *parent) :
     ui->descriptionLabel->setText(anime->GetDescription());
     ui->coverImageLabel->setText(anime->GetCoverImageUrl());
     ApplyCoverImageByUrl(anime->GetCoverImageUrl());
+
+    QString genreString;
+    for (const QString& genreName : anime->GetGenres()) {
+        if (!genreString.isEmpty())
+            genreString += ", ";
+        genreString += genreName;
+    }
+
+    ui->genresLabel->setText(genreString);
+
+    ui->statusLabel->setText(anime->GetStatus());
+    ui->episodesLabel->setText(QString::number(anime->GetEpisodes()) + " episode(s)");
+
+    ui->datesLabel->setText(QString::number(anime->GetStartDay()) + "/" + QString::number(anime->GetStartMonth()) + "/" + QString::number(anime->GetStartYear()) + " - " + QString::number(anime->GetEndDay()) + "/" + QString::number(anime->GetEndMonth()) + "/" + QString::number(anime->GetEndYear()));
 }
 
 void AnimePreviewUI::ApplyCoverImageByUrl(const QString& coverImageUrl) {

@@ -22,7 +22,7 @@
     </widget>
    </item>
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,1">
+    <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,0,1">
      <item>
       <widget class="QLabel" name="titleLabel">
        <property name="text">
@@ -31,9 +31,30 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="specsLabel">
+      <widget class="QLabel" name="genresLabel">
        <property name="text">
-        <string>[Status, Dates, Episodes, Type, Genres]</string>
+        <string>[Genres]</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="datesLabel">
+       <property name="text">
+        <string>[Dates]</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="episodesLabel">
+       <property name="text">
+        <string>[Episodes]</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="statusLabel">
+       <property name="text">
+        <string>[Status]</string>
        </property>
       </widget>
      </item>
