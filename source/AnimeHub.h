@@ -28,21 +28,25 @@ public:
     void Load();
     void Save();
 
+    void CreateList(const QString& listName);
     void SelectList(const QString& listName);
 
     const QVector<Anime *>& GetAnimes() const;
     void AddAnimeToList(const QString& listName, Anime* anime);
+
+    void SetupAnimePreviewSearchContextMenu(AnimePreviewUI* animePreviewUI, Anime* anime);
+
+    void SearchAnime(const QString& animeName);
 
     void RefreshAnimeListUI();
     void RefreshListsUI();
 
 private slots:
     void on_addAnimeButton_clicked();
-    void on_pushButton_clicked();
-
+    void on_searchButton_clicked();
     void on_newListButton_clicked();
-
     void on_listsComboBox_currentTextChanged(const QString &arg1);
+    void on_searchLineEdit_returnPressed();
 
 public slots:
 

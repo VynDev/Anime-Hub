@@ -18,7 +18,7 @@
     <item>
      <widget class="QTabWidget" name="newsTab">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_3">
        <attribute name="title">
@@ -28,10 +28,14 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_3">
           <item>
-           <widget class="QLineEdit" name="searchLineEdit"/>
+           <widget class="QLineEdit" name="searchLineEdit">
+            <property name="placeholderText">
+             <string>Anime title</string>
+            </property>
+           </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton">
+           <widget class="QPushButton" name="searchButton">
             <property name="text">
              <string>Search</string>
             </property>

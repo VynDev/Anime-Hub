@@ -20,10 +20,16 @@ AnimeHub::AnimeHub(QWidget *parent)
     , ui(new Ui::AnimeHub), selectedList(DefaultListName)
 {
     ui->setupUi(this);
+    ui->animeListLayout->setAlignment(Qt::AlignTop);
+
     AnimeHub::manager = new QNetworkAccessManager(this);
 
-    lists[DefaultListName] = new QVector<Anime*>;
     Load();
+    if (lists.isEmpty())
+        lists[DefaultListName] = new QVector<Anime*>;
+
+    RefreshListsUI();
+    RefreshAnimeListUI();
 }
 
 AnimeHub::~AnimeHub()
@@ -53,27 +59,22 @@ void AnimeHub::Save() {
 
 void AnimeHub::Load() {
     JSON::Object json("save.json");
-    if (!json.IsValid()) {
-        std::cout << "Failed to load save.json" << std::endl;
+    if (json.IsValid()) {
+        for (auto& listJson : json["lists"].AsArray().GetElements()) {
+            lists[QString::fromStdString(listJson->AsObject()["name"].AsString())] = new QVector<Anime*>;
+            auto& animesJson = listJson->AsObject()["animes"].AsArray();
+            for (int i = 0; i < animesJson.GetLenth(); ++i) {
+                Anime* anime = new Anime(QString::fromStdString(animesJson[i].AsObject()["title"].AsString()));
+                anime->SetDescription(QString::fromStdString(animesJson[i].AsObject()["description"].AsString()));
+                anime->SetCoverImageByUrl(QString::fromStdString(animesJson[i].AsObject()["coverImageUrl"].AsString()));
+                lists[QString::fromStdString(listJson->AsObject()["name"].AsString())]->push_back(anime);
+            }
+        }
         return ;
     }
-    for (auto& listJson : json["lists"].AsArray().GetElements()) {
-        lists[QString::fromStdString(listJson->AsObject()["name"].AsString())] = new QVector<Anime*>;
-        auto& animesJson = listJson->AsObject()["animes"].AsArray();
-        for (int i = 0; i < animesJson.GetLenth(); ++i) {
-            Anime* anime = new Anime(QString::fromStdString(animesJson[i].AsObject()["title"].AsString()));
-            anime->SetDescription(QString::fromStdString(animesJson[i].AsObject()["description"].AsString()));
-            anime->SetCoverImageByUrl(QString::fromStdString(animesJson[i].AsObject()["coverImageUrl"].AsString()));
-            lists[QString::fromStdString(listJson->AsObject()["name"].AsString())]->push_back(anime);
-        }
+    else {
+        std::cout << "Failed to load save.json" << std::endl;
     }
-    RefreshAnimeListUI();
-    RefreshListsUI();
-}
-
-void AnimeHub::on_addAnimeButton_clicked()
-{
-   AddAnimeToList(DefaultListName, new Anime("ez"));
 }
 
 const QVector<Anime *>& AnimeHub::GetAnimes() const {
@@ -88,30 +89,46 @@ void AnimeHub::AddAnimeToList(const QString& listName, Anime* anime) {
     Save();
 }
 
-void AnimeHub::RefreshAnimeListUI() {
-    while (!animeListPreviewListUIs.isEmpty()) {
-        AnimePreviewUI* animePreviewUI = animeListPreviewListUIs.takeLast();
-        ui->animeListLayout->removeWidget(animePreviewUI);
-        delete animePreviewUI;
-    }
-
-    for (Anime* anime : *lists[selectedList]) {
-        AnimePreviewUI* animePreviewUI = new AnimePreviewUI(anime, this);
-        animeListPreviewListUIs.push_back(animePreviewUI);
-        ui->animeListLayout->addWidget(animePreviewUI);
-    }
-    ui->animeListLayout->setAlignment(Qt::AlignTop);
+void AnimeHub::CreateList(const QString& listName) {
+    if (listName.isEmpty() || lists.find(listName) != lists.end())
+        return ;
+    lists[listName] = new QVector<Anime*>;
+    RefreshListsUI();
+    Save();
 }
 
-void AnimeHub::RefreshListsUI() {
-    ui->listsComboBox->clear();
-    for (auto& listName : lists.keys()) {
-        ui->listsComboBox->addItem(listName);
-    }
+void AnimeHub::SelectList(const QString& listName) {
+    selectedList = listName;
+    RefreshAnimeListUI();
 }
 
-void AnimeHub::on_pushButton_clicked()
-{
+void AnimeHub::SetupAnimePreviewSearchContextMenu(AnimePreviewUI* animePreviewUI, Anime* anime) {
+    animePreviewUI->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(animePreviewUI, &AnimePreviewUI::customContextMenuRequested, [=] (const QPoint& pos) {
+        // for most widgets
+        QPoint globalPos = animePreviewUI->mapToGlobal(pos);
+        // for QAbstractScrollArea and derived classes you would use:
+        // QPoint globalPos = myWidget->viewport()->mapToGlobal(pos);
+
+        QMenu myMenu;
+        myMenu.addAction(anime->GetTitle());
+
+        QMap<QAction*, QString> actions;
+        for (auto listName : lists.keys()) {
+            actions[myMenu.addAction("Add to '" + listName + "'")] = listName;
+        }
+
+        QAction* selectedAction = myMenu.exec(globalPos);
+
+        for (auto action : actions.keys()) {
+            if (selectedAction == action) {
+                AddAnimeToList(actions[action], anime);
+            }
+        }
+    });
+}
+
+void AnimeHub::SearchAnime(const QString& animeName) {
     std::cout << "Fetching page" << std::endl;
 
     QByteArray body =
@@ -140,7 +157,7 @@ void AnimeHub::on_pushButton_clicked()
             }\
         \",\
         \"variables\": {\
-            \"search\": \"" + QByteArray(ui->searchLineEdit->text().isEmpty() ? "sword art online" : ui->searchLineEdit->text().toUtf8()) + "\"\
+            \"search\": \"" + QByteArray(animeName.toUtf8()) + "\"\
         }\
     }";
 
@@ -161,15 +178,13 @@ void AnimeHub::on_pushButton_clicked()
             return;
         }
         QString answer = reply->readAll();
-        std::cout << "Response!" << std::endl;
-        std::cout << answer.toStdString() << std::endl;
+        std::cout << "Response:" << std::endl << answer.toStdString() << std::endl;
 
         JSON::Object json(answer.toStdString(), JSON::SOURCE::CONTENT);
         if (!json.IsValid()) {
             std::cout << "Error while parsing json: " << json.GetError() << std::endl;
             return ;
         }
-        std::cout << json["data"].AsObject()["Page"].AsObject()["media"].AsArray().ToString() << std::endl;
         auto& medias = json["data"].AsObject()["Page"].AsObject()["media"].AsArray().GetElements();
 
         while (!animePreviewSearchUIs.isEmpty()) {
@@ -179,58 +194,38 @@ void AnimeHub::on_pushButton_clicked()
         }
 
         for (auto& media : medias) {
-
             QString title = QString::fromStdString(media->AsObject()["title"].AsObject()["romaji"].AsString());
             QString description = !media->AsObject()["description"].IsNull() ? QString::fromStdString(media->AsObject()["description"].AsString()) : "null";
             QString coverImageUrl = QString::fromStdString(media->AsObject()["coverImage"].AsObject()["large"].AsString()).replace("\\", "");
 
             Anime *anime = new Anime(title);
-            anime->SetTitle(title);
             anime->SetDescription(description);
             anime->SetCoverImageByUrl(coverImageUrl);
 
-            std::cout << title.toStdString() << std::endl;
             AnimePreviewUI *preview = new AnimePreviewUI(anime, this);
             animePreviewSearchUIs.push_back(preview);
-
-
-            preview->setContextMenuPolicy(Qt::CustomContextMenu);
-            connect(preview, &AnimePreviewUI::customContextMenuRequested, [=] (const QPoint& pos) {
-                // for most widgets
-                QPoint globalPos = preview->mapToGlobal(pos);
-                // for QAbstractScrollArea and derived classes you would use:
-                // QPoint globalPos = myWidget->viewport()->mapToGlobal(pos);
-
-                QMenu myMenu;
-                myMenu.addAction(title);
-
-                QMap<QAction*, QString> actions;
-                for (auto listName : lists.keys()) {
-                    actions[myMenu.addAction("Add to '" + listName + "'")] = listName;
-                }
-
-                QAction* selectedAction = myMenu.exec(globalPos);
-
-                for (auto action : actions.keys()) {
-                    if (selectedAction == action) {
-                        AddAnimeToList(actions[action], anime);
-                    }
-                }
-            });
-
             ui->animeSearchResult->addWidget(preview);
+
+            SetupAnimePreviewSearchContextMenu(preview, anime);
         }
     });
 }
 
-void AnimeHub::on_newListButton_clicked()
+// Events
+
+void AnimeHub::on_addAnimeButton_clicked()
 {
-    QString newListName = QInputDialog::getText(this, "New list", "Chose a name for the new list");
-    if (newListName.isEmpty() || lists.find(newListName) != lists.end())
-        return ;
-    lists[newListName] = new QVector<Anime*>;
-    RefreshListsUI();
-    Save();
+   AddAnimeToList(DefaultListName, new Anime("ez"));
+}
+
+void AnimeHub::on_searchButton_clicked()
+{
+    SearchAnime(ui->searchLineEdit->text().isEmpty() ? "sword art online" : ui->searchLineEdit->text());
+}
+
+void AnimeHub::on_searchLineEdit_returnPressed()
+{
+    ui->searchButton->click();
 }
 
 void AnimeHub::on_listsComboBox_currentTextChanged(const QString &listName)
@@ -240,11 +235,34 @@ void AnimeHub::on_listsComboBox_currentTextChanged(const QString &listName)
     SelectList(listName);
 }
 
-void AnimeHub::SelectList(const QString& listName) {
-    selectedList = listName;
-    RefreshAnimeListUI();
+void AnimeHub::on_newListButton_clicked()
+{
+    QString newListName = QInputDialog::getText(this, "New list", "Chose a name for the new list");
+    CreateList(newListName);
 }
 
+// UI related methods
+
+void AnimeHub::RefreshAnimeListUI() {
+    while (!animeListPreviewListUIs.isEmpty()) {
+        AnimePreviewUI* animePreviewUI = animeListPreviewListUIs.takeLast();
+        ui->animeListLayout->removeWidget(animePreviewUI);
+        delete animePreviewUI;
+    }
+
+    for (Anime* anime : *lists[selectedList]) {
+        AnimePreviewUI* animePreviewUI = new AnimePreviewUI(anime, this);
+        animeListPreviewListUIs.push_back(animePreviewUI);
+        ui->animeListLayout->addWidget(animePreviewUI);
+    }
+}
+
+void AnimeHub::RefreshListsUI() {
+    ui->listsComboBox->clear();
+    for (auto& listName : lists.keys()) {
+        ui->listsComboBox->addItem(listName);
+    }
+}
 
 // Static methods
 
