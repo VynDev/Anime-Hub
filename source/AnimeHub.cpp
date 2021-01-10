@@ -56,6 +56,20 @@ void AnimeHub::Save() {
             animeJson["title"] = anime->GetTitle().toStdString();
             animeJson["description"] = anime->GetDescription().toStdString();
             animeJson["coverImageUrl"] = anime->GetCoverImageUrl().toStdString();
+            animeJson["episodes"] = anime->GetEpisodes();
+            animeJson["status"] = anime->GetStatus().toStdString();
+            animeJson.AddArray("genres");
+            for (QString genreName : anime->GetGenres()) {
+                animeJson["genres"].AsArray().AddElement(genreName.toStdString());
+            }
+            animeJson.AddObject("startDate");
+            animeJson["startDate"].AsObject()["year"] = anime->GetStartYear();
+            animeJson["startDate"].AsObject()["month"] = anime->GetStartMonth();
+            animeJson["startDate"].AsObject()["day"] = anime->GetStartDay();
+            animeJson.AddObject("endDate");
+            animeJson["endDate"].AsObject()["year"] = anime->GetEndYear();
+            animeJson["endDate"].AsObject()["month"] = anime->GetEndMonth();
+            animeJson["endDate"].AsObject()["day"] = anime->GetEndDay();
         }
     }
     json.Save("save.json");
@@ -71,6 +85,22 @@ void AnimeHub::Load() {
                 Anime* anime = new Anime(QString::fromStdString(animesJson[i].AsObject()["title"].AsString()));
                 anime->SetDescription(QString::fromStdString(animesJson[i].AsObject()["description"].AsString()));
                 anime->SetCoverImageByUrl(QString::fromStdString(animesJson[i].AsObject()["coverImageUrl"].AsString()));
+                anime->SetStatus(QString::fromStdString(animesJson[i].AsObject()["status"].AsString()));
+
+                anime->SetEpisodes(animesJson[i].AsObject()["episodes"].AsNumber());
+
+                for (auto& genreJson : animesJson[i].AsObject()["genres"].AsArray().GetElements()) {
+                    anime->AddGenre(QString::fromStdString(genreJson->AsString()));
+                }
+
+                anime->SetStartYear(animesJson[i].AsObject()["startDate"].AsObject()["year"].AsNumber());
+                anime->SetStartMonth(animesJson[i].AsObject()["startDate"].AsObject()["month"].AsNumber());
+                anime->SetStartDay(animesJson[i].AsObject()["startDate"].AsObject()["day"].AsNumber());
+
+                anime->SetEndYear(animesJson[i].AsObject()["endDate"].AsObject()["year"].AsNumber());
+                anime->SetEndMonth(animesJson[i].AsObject()["endDate"].AsObject()["month"].AsNumber());
+                anime->SetEndDay(animesJson[i].AsObject()["endDate"].AsObject()["day"].AsNumber());
+
                 lists[QString::fromStdString(listJson->AsObject()["name"].AsString())]->push_back(anime);
             }
         }

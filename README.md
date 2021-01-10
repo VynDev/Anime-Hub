@@ -19,7 +19,7 @@ Keep your anime lists on your computer with this desktop software.
 
 ## Presentation
 
-![presentation](https://github.com/VynDev/Anime-Hub/blob/main/images/presentation.png)
+![presentation](https://github.com/VynDev/Anime-Hub/blob/main/images/presentation.gif)
 
 ## Build & Run
 

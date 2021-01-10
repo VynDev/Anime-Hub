@@ -4,6 +4,7 @@
 #include <QtNetwork>
 #include <iostream>
 #include "AnimeHub.h"
+#include <QPalette>
 
 AnimePreviewUI::AnimePreviewUI(Anime* anime, QWidget *parent) :
     QWidget(parent),

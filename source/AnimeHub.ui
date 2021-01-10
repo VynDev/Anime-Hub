@@ -86,22 +86,40 @@
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
-         <layout class="QVBoxLayout" name="animeListLayout" stretch="0">
+         <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="1,0">
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="1,0">
-            <item>
-             <widget class="QComboBox" name="listsComboBox"/>
-            </item>
-            <item>
-             <widget class="QPushButton" name="newListButton">
-              <property name="text">
-               <string>New list</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
+           <widget class="QComboBox" name="listsComboBox"/>
+          </item>
+          <item>
+           <widget class="QPushButton" name="newListButton">
+            <property name="text">
+             <string>New list</string>
+            </property>
+           </widget>
           </item>
          </layout>
+        </item>
+        <item>
+         <widget class="QScrollArea" name="scrollArea_2">
+          <property name="widgetResizable">
+           <bool>true</bool>
+          </property>
+          <widget class="QWidget" name="scrollAreaWidgetContents_2">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>1272</width>
+             <height>785</height>
+            </rect>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_3">
+            <item>
+             <layout class="QVBoxLayout" name="animeListLayout"/>
+            </item>
+           </layout>
+          </widget>
+         </widget>
         </item>
        </layout>
       </widget>
