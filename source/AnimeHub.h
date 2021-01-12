@@ -8,6 +8,7 @@
 #include <QtNetwork/QNetworkRequest>
 #include <QtNetwork/QNetworkReply>
 #include "AnimePreviewUI.h"
+#include "Settings.h"
 
 class Anime;
 
@@ -50,9 +51,13 @@ private slots:
 
 public slots:
 
+    void OpenSettings();
 
 private:
     Ui::AnimeHub *ui;
+
+    Settings settings;
+
     static QNetworkAccessManager *manager;
 
     QVector<Anime *> animes; // deprecated

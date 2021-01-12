@@ -13,14 +13,89 @@
   <property name="windowTitle">
    <string>Anime Hub</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">
+
+QMainWindow, QInputDialog {
+    background: rgb(50, 50, 50);
+}
+
+QPushButton, QComboBox, QComboBox::drop-down, QComboBox QAbstractItemView {
+    background-color: rgb(100, 100, 100);
+	border: none;
+	padding: 4px;
+	padding-left: 16px;
+	padding-right: 16px;
+	color: rgb(200, 200, 200);
+}
+
+QPushButton:hover {
+	background-color: rgb(110, 110, 110);
+}
+
+QTabBar, QTabBar::tab, #searchTab, #listsTab, QTabWidget::pane {
+	background: rgb(75, 75, 75);
+}
+
+QTabBar::tab:!selected {
+	background: rgb(60, 60, 60);
+}
+
+QLineEdit {
+	background: rgb(100, 100, 100);
+	color: rgb(200, 200, 200);
+	padding: 4px;
+}
+
+#scrollArea, #scrollArea_2 {
+	border-top: 1px solid rgb(100, 100, 100);
+}
+
+#scrollAreaWidgetContents, #scrollAreaWidgetContents_2 {
+	background: rgb(75, 75, 75);
+}
+
+QScrollBar:vertical {
+     border-radius: 4px;
+     background: rgb(80, 80, 80);
+     width: 15px;
+     margin: 22px 0 22px 0;
+ }
+
+ QScrollBar::handle:vertical {
+	min-height: 0px;
+	border: 0px solid red;
+	border-radius: 4px;
+	background-color: rgb(65, 65 ,65);
+ }
+
+ QScrollBar::add-line:vertical {
+     background: none;
+ }
+
+ QScrollBar::sub-line:vertical {
+     background: none;
+ }
+
+ QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {
+     background: none;
+ }
+
+ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+     background: none;
+ }</string>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QTabWidget" name="newsTab">
+     <widget class="QTabWidget" name="tabs">
+      <property name="styleSheet">
+       <string notr="true"/>
+      </property>
       <property name="currentIndex">
        <number>0</number>
       </property>
-      <widget class="QWidget" name="tab_3">
+      <widget class="QWidget" name="searchTab">
        <attribute name="title">
         <string>Search</string>
        </attribute>
@@ -28,11 +103,7 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_3">
           <item>
-           <widget class="QLineEdit" name="searchLineEdit">
-            <property name="placeholderText">
-             <string>Anime title</string>
-            </property>
-           </widget>
+           <widget class="QLineEdit" name="searchLineEdit"/>
           </item>
           <item>
            <widget class="QPushButton" name="searchButton">
@@ -53,8 +124,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>1272</width>
-             <height>785</height>
+             <width>1276</width>
+             <height>760</height>
             </rect>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -80,7 +151,7 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tab_2">
+      <widget class="QWidget" name="listsTab">
        <attribute name="title">
         <string>Lists</string>
        </attribute>
@@ -109,8 +180,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>1272</width>
-             <height>785</height>
+             <width>1276</width>
+             <height>762</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -127,6 +198,39 @@
     </item>
    </layout>
   </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1314</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuSettings">
+    <property name="title">
+     <string>More</string>
+    </property>
+    <addaction name="actionSettings"/>
+    <addaction name="actionAbout"/>
+   </widget>
+   <addaction name="menuSettings"/>
+  </widget>
+  <action name="actionCredits">
+   <property name="text">
+    <string>Credits</string>
+   </property>
+  </action>
+  <action name="actionSettings">
+   <property name="text">
+    <string>Settings</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

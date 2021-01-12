@@ -18,6 +18,8 @@ public:
     AnimePreviewUI(Anime* anime, QWidget *parent = nullptr);
     ~AnimePreviewUI();
 
+    void paintEvent(QPaintEvent *);
+
 private:
     Ui::AnimePreviewUI *ui;
 

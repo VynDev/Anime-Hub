@@ -5,6 +5,9 @@
 #include <iostream>
 #include "AnimeHub.h"
 #include <QPalette>
+#include <QStyle>
+#include <QStyleOption>
+#include <QPainter>
 
 AnimePreviewUI::AnimePreviewUI(Anime* anime, QWidget *parent) :
     QWidget(parent),
@@ -55,4 +58,11 @@ void AnimePreviewUI::ApplyCoverImageByUrl(const QString& coverImageUrl) {
 AnimePreviewUI::~AnimePreviewUI()
 {
     delete ui;
+}
+
+void AnimePreviewUI::paintEvent(QPaintEvent *) {
+    QStyleOption opt;
+    opt.initFrom(this);
+    QPainter p(this);
+    style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
 }

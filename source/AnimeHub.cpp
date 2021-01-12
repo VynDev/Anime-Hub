@@ -9,18 +9,20 @@
 #include <QMenu>
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
+#include <QFile>
 
 #include <iostream>
 #include "json-parser/JSON.h"
 #include "AnimePreviewUI.h"
 #include "Anime.h"
+#include "SettingsUI.h"
 
 const QString DefaultListName = "Default";
 
 QNetworkAccessManager* AnimeHub::manager = nullptr;
 
 AnimeHub::AnimeHub(QWidget *parent)
-    : QMainWindow(parent)
+    : QMainWindow(parent), settings("./settings.json")
     , ui(new Ui::AnimeHub), selectedList(DefaultListName)
 {
     ui->setupUi(this);
@@ -34,12 +36,24 @@ AnimeHub::AnimeHub(QWidget *parent)
 
     RefreshListsUI();
     RefreshAnimeListUI();
+
+    //QFile style("./style.qss");
+    //style.open(QFile::ReadOnly);
+    //setStyleSheet(style.readAll());
+
+    connect(ui->actionSettings, SIGNAL(triggered()), this, SLOT(OpenSettings()));
 }
 
 AnimeHub::~AnimeHub()
 {
     delete ui;
     delete AnimeHub::manager;
+}
+
+void AnimeHub::OpenSettings() {
+    std::cout << "Opening settings" << std::endl;
+    SettingsUI *settingsUI = new SettingsUI(&settings, this);
+    settingsUI->show();
 }
 
 void AnimeHub::Save() {
@@ -269,7 +283,8 @@ void AnimeHub::SearchAnime(const QString& animeName) {
 
             Anime *anime = new Anime(title);
             anime->SetDescription(description);
-            anime->SetCoverImageByUrl(coverImageUrl);
+            if (settings.ShouldFetchImages())
+                anime->SetCoverImageByUrl(coverImageUrl);
             for (int i = 0; i < media->AsObject()["genres"].AsArray().GetLenth(); ++i) {
                 anime->AddGenre(QString::fromStdString(media->AsObject()["genres"].AsArray()[i].AsString()));
             }
@@ -285,10 +300,9 @@ void AnimeHub::SearchAnime(const QString& animeName) {
             anime->SetEndDay(endDay);
 
             AnimePreviewUI *preview = new AnimePreviewUI(anime, this);
+            preview->setObjectName("animePreviewUI");
             animePreviewSearchUIs.push_back(preview);
             ui->animeSearchResult->addWidget(preview);
-
-
 
             SetupAnimePreviewSearchContextMenu(preview, anime);
         }

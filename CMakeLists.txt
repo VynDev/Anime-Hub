@@ -39,6 +39,11 @@ set(PROJECT_SOURCES
         ${SOURCE_DIR}/AnimePreviewUI.cpp
         ${SOURCE_DIR}/AnimePreviewUI.h
         ${SOURCE_DIR}/AnimePreviewUI.ui
+        ${SOURCE_DIR}/SettingsUI.cpp
+        ${SOURCE_DIR}/SettingsUI.h
+        ${SOURCE_DIR}/SettingsUI.ui
+        ${SOURCE_DIR}/Settings.cpp
+        ${SOURCE_DIR}/Settings.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
