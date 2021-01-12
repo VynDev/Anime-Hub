@@ -17,13 +17,13 @@
 #include "Anime.h"
 #include "SettingsUI.h"
 
-const QString DefaultListName = "Default";
+const QString DefaultListName = "Watched";
 
 QNetworkAccessManager* AnimeHub::manager = nullptr;
 
 AnimeHub::AnimeHub(QWidget *parent)
-    : QMainWindow(parent), settings("./settings.json")
-    , ui(new Ui::AnimeHub), selectedList(DefaultListName)
+    : QMainWindow(parent)
+    , ui(new Ui::AnimeHub), settings("./settings.json"), selectedList(DefaultListName)
 {
     ui->setupUi(this);
     ui->animeListLayout->setAlignment(Qt::AlignTop);
@@ -73,7 +73,7 @@ void AnimeHub::Save() {
             animeJson["episodes"] = anime->GetEpisodes();
             animeJson["status"] = anime->GetStatus().toStdString();
             animeJson.AddArray("genres");
-            for (QString genreName : anime->GetGenres()) {
+            for (const QString& genreName : anime->GetGenres()) {
                 animeJson["genres"].AsArray().AddElement(genreName.toStdString());
             }
             animeJson.AddObject("startDate");
@@ -161,8 +161,8 @@ void AnimeHub::SetupAnimePreviewSearchContextMenu(AnimePreviewUI* animePreviewUI
         QMenu myMenu;
         myMenu.addAction(anime->GetTitle());
 
-        QMap<QAction*, QString> actions;
-        for (auto listName : lists.keys()) {
+        QHash<QAction*, QString> actions;
+        for (const QString& listName : lists.keys()) {
             actions[myMenu.addAction("Add to '" + listName + "'")] = listName;
         }
 

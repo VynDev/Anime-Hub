@@ -24,6 +24,7 @@ private:
     Ui::AnimePreviewUI *ui;
 
     void ApplyCoverImageByUrl(const QString& coverImageUrl);
+    void ApplyCoverImageByImage(const QString& coverImagePath); // [Todo]
 };
 
 #endif // ANIMEPREVIEWUI_H
