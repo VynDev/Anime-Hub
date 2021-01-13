@@ -4,10 +4,8 @@
 
 - Toolbar:
     - Settings:
-        - Save paths (+backup).
         - [Done] Fetch images.
         - Do not cache [opt].
-        - Theme selection (System, Vyn-test).
 
     - About:
         - Author, version, license, links, etc.

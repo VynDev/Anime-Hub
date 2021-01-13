@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.0] - 2020-01-13
+
+### Added
+- Dark theme
+- Settings: Paths, cache, images fetching, theme
+
 ## [0.1.0] - 2020-01-10
 
 ### Added
