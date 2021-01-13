@@ -42,6 +42,9 @@ public:
     void RefreshAnimeListUI();
     void RefreshListsUI();
 
+    void ResetStyle();
+    void LoadStyle(const QString& file);
+
 private slots:
     void on_addAnimeButton_clicked();
     void on_searchButton_clicked();

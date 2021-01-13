@@ -44,6 +44,7 @@ set(PROJECT_SOURCES
         ${SOURCE_DIR}/SettingsUI.ui
         ${SOURCE_DIR}/Settings.cpp
         ${SOURCE_DIR}/Settings.h
+        styles.qrc
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

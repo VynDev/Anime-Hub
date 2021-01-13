@@ -14,7 +14,7 @@ void Settings::Save() {
     settingsJson["path"] = path.toStdString();
     settingsJson["fetchImages"] = bShouldFetchImage;
     settingsJson["noCache"] = !bShouldCache;
-    settingsJson["theme"] = theme.toStdString();
+    settingsJson["useSystemTheme"] = bShouldUseSystemTheme;
 
     settingsJson.Save(settingsPath.toStdString());
 }
@@ -30,7 +30,7 @@ void Settings::Reload() {
     path = QString::fromStdString(settingsJson["path"].AsString());
     bShouldFetchImage = settingsJson["fetchImages"].AsBool();
     bShouldCache = !settingsJson["noCache"].AsBool();
-    theme = QString::fromStdString(settingsJson["theme"].AsString());
+    bShouldUseSystemTheme = settingsJson["useSystemTheme"].AsBool();
 }
 
 QString Settings::GetPath() const {
@@ -45,8 +45,8 @@ bool Settings::ShouldCache() const {
     return bShouldCache;
 }
 
-QString Settings::GetTheme() const {
-    return theme;
+bool Settings::ShouldUseSystemTheme() const {
+    return bShouldUseSystemTheme;
 }
 
 
@@ -62,6 +62,6 @@ void Settings::EnableCache(bool state) {
     this->bShouldCache = state;
 }
 
-void Settings::SetTheme(const QString& theme) {
-    this->theme = theme;
+void Settings::UseSystemTheme(bool state) {
+    this->bShouldUseSystemTheme = state;
 }

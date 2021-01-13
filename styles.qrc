@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>styles/vyn-dark.qss</file>
+    </qresource>
+</RCC>

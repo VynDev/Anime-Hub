@@ -12,12 +12,12 @@ public:
     QString GetPath() const;
     bool ShouldFetchImages() const;
     bool ShouldCache() const;
-    QString GetTheme() const;
+    bool ShouldUseSystemTheme () const;
 
     void SetPath(const QString& path);
     void EnableImageFetching(bool state);
     void EnableCache(bool state);
-    void SetTheme(const QString& theme);
+    void UseSystemTheme(bool state);
 
     void Save();
     void Reload();
@@ -26,10 +26,10 @@ private:
 
     QString settingsPath;
 
-    QString path;
-    bool bShouldFetchImage;
-    bool bShouldCache;
-    QString theme;
+    QString path = "./save.json";
+    bool bShouldFetchImage = true;
+    bool bShouldCache = true;
+    bool bShouldUseSystemTheme = false;
 
 };
 

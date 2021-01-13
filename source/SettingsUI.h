@@ -19,6 +19,8 @@ public:
 private slots:
     void on_saveButton_clicked();
 
+    void on_systemThemeCheckBox_stateChanged(int arg1);
+
 private:
     Ui::SettingsUI *ui;
 

@@ -75,31 +75,11 @@
      </widget>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0,0">
-      <item>
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>Theme:</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QComboBox" name="themeComboBox"/>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer_2">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-     </layout>
+     <widget class="QCheckBox" name="systemThemeCheckBox">
+      <property name="text">
+       <string>Use system theme</string>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>

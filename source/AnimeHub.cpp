@@ -37,9 +37,8 @@ AnimeHub::AnimeHub(QWidget *parent)
     RefreshListsUI();
     RefreshAnimeListUI();
 
-    //QFile style("./style.qss");
-    //style.open(QFile::ReadOnly);
-    //setStyleSheet(style.readAll());
+    if (!settings.ShouldUseSystemTheme())
+        LoadStyle(":/styles/vyn-dark.qss");
 
     connect(ui->actionSettings, SIGNAL(triggered()), this, SLOT(OpenSettings()));
 }
@@ -48,6 +47,16 @@ AnimeHub::~AnimeHub()
 {
     delete ui;
     delete AnimeHub::manager;
+}
+
+void AnimeHub::ResetStyle() {
+    setStyleSheet("");
+}
+
+void AnimeHub::LoadStyle(const QString& file) {
+    QFile style(file);
+    style.open(QFile::ReadOnly);
+    setStyleSheet(style.readAll());
 }
 
 void AnimeHub::OpenSettings() {
@@ -86,11 +95,11 @@ void AnimeHub::Save() {
             animeJson["endDate"].AsObject()["day"] = anime->GetEndDay();
         }
     }
-    json.Save("save.json");
+    json.Save(settings.GetPath().toStdString());
 }
 
 void AnimeHub::Load() {
-    JSON::Object json("save.json");
+    JSON::Object json(settings.GetPath().toStdString());
     if (json.IsValid()) {
         for (auto& listJson : json["lists"].AsArray().GetElements()) {
             lists[QString::fromStdString(listJson->AsObject()["name"].AsString())] = new QVector<Anime*>;
