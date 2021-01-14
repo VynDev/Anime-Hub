@@ -70,7 +70,7 @@
     <item>
      <widget class="QCheckBox" name="noCacheCheckBox">
       <property name="text">
-       <string>Disable cache</string>
+       <string>Disable cache (not implemented yet)</string>
       </property>
      </widget>
     </item>

@@ -24,7 +24,7 @@
        <string notr="true"/>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="searchTab">
        <attribute name="title">
@@ -88,7 +88,7 @@
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="1,0">
+         <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="1,0,0">
           <item>
            <widget class="QComboBox" name="listsComboBox"/>
           </item>
@@ -96,6 +96,13 @@
            <widget class="QPushButton" name="newListButton">
             <property name="text">
              <string>New list</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="deleteListButton">
+            <property name="text">
+             <string>Delete list</string>
             </property>
            </widget>
           </item>

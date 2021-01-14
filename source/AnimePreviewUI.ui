@@ -44,9 +44,14 @@
        </widget>
       </item>
       <item>
-       <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,0,1">
+       <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,1">
         <item>
          <widget class="QLabel" name="titleLabel">
+          <property name="font">
+           <font>
+            <pointsize>16</pointsize>
+           </font>
+          </property>
           <property name="text">
            <string>[Title]</string>
           </property>
@@ -60,23 +65,34 @@
          </widget>
         </item>
         <item>
-         <widget class="QLabel" name="datesLabel">
-          <property name="text">
-           <string>[Dates]</string>
-          </property>
-         </widget>
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="QLabel" name="episodesLabel">
+            <property name="text">
+             <string>[Episodes]</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="datesLabel">
+            <property name="text">
+             <string>[Dates]</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="statusLabel">
+            <property name="text">
+             <string>[Status]</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
         <item>
-         <widget class="QLabel" name="episodesLabel">
-          <property name="text">
-           <string>[Episodes]</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="statusLabel">
-          <property name="text">
-           <string>[Status]</string>
+         <widget class="Line" name="descriptionSeparator">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
           </property>
          </widget>
         </item>

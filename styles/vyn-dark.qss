@@ -8,7 +8,7 @@ QPushButton, QComboBox, QComboBox::drop-down, QComboBox QAbstractItemView {
 	padding: 4px;
 	padding-left: 16px;
 	padding-right: 16px;
-	color: rgb(200, 200, 200);
+	color: rgb(225, 225, 225);
 }
 
 QPushButton:hover {
@@ -67,7 +67,27 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
 	background: none;
 }
 
+#newListButton {
+	background-color: rgb(75, 100, 75);
+}
+
+#deleteListButton {
+	background-color: rgb(100, 75, 75);
+}
+
+#newListButton:hover {
+	background-color: rgb(75, 110, 75);
+}
+
+#deleteListButton:hover {
+	background-color: rgb(110, 75, 75);
+}
+
 AnimePreviewUI {
 	background: rgb(100, 100, 100);
 	border-radius: 4px;
+}
+
+#descriptionSeparator {
+	border-top: 0.5px solid rgb(125, 125, 125);
 }

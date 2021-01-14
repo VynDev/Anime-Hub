@@ -9,6 +9,12 @@
 #include <QStyleOption>
 #include <QPainter>
 
+QString DateNumber(int number) {
+    if (number < 0)
+        return "?";
+    return (number < 10 ? "0" : "") + QString::number(number);
+}
+
 AnimePreviewUI::AnimePreviewUI(Anime* anime, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::AnimePreviewUI)
@@ -31,7 +37,7 @@ AnimePreviewUI::AnimePreviewUI(Anime* anime, QWidget *parent) :
     ui->statusLabel->setText(anime->GetStatus());
     ui->episodesLabel->setText(QString::number(anime->GetEpisodes()) + " episode(s)");
 
-    ui->datesLabel->setText(QString::number(anime->GetStartDay()) + "/" + QString::number(anime->GetStartMonth()) + "/" + QString::number(anime->GetStartYear()) + " - " + QString::number(anime->GetEndDay()) + "/" + QString::number(anime->GetEndMonth()) + "/" + QString::number(anime->GetEndYear()));
+    ui->datesLabel->setText(DateNumber(anime->GetStartDay()) + "/" + DateNumber(anime->GetStartMonth()) + "/" + DateNumber(anime->GetStartYear()) + " - " + DateNumber(anime->GetEndDay()) + "/" + DateNumber(anime->GetEndMonth()) + "/" + DateNumber(anime->GetEndYear()));
 }
 
 void AnimePreviewUI::ApplyCoverImageByUrl(const QString& coverImageUrl) {

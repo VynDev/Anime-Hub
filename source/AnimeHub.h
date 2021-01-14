@@ -31,11 +31,14 @@ public:
 
     void CreateList(const QString& listName);
     void SelectList(const QString& listName);
+    void DeleteList(const QString& listName);
 
     const QVector<Anime *>& GetAnimes() const;
     void AddAnimeToList(const QString& listName, Anime* anime);
+    void RemoveAnimeFromList(const QString& listName, Anime* anime);
 
     void SetupAnimePreviewSearchContextMenu(AnimePreviewUI* animePreviewUI, Anime* anime);
+    void SetupAnimePreviewListContextMenu(AnimePreviewUI* animePreviewUI, Anime* anime, const QString& selectedList);
 
     void SearchAnime(const QString& animeName);
 
@@ -51,6 +54,8 @@ private slots:
     void on_newListButton_clicked();
     void on_listsComboBox_currentTextChanged(const QString &arg1);
     void on_searchLineEdit_returnPressed();
+
+    void on_deleteListButton_clicked();
 
 public slots:
 

@@ -9,8 +9,7 @@ Keep your anime lists on your computer with this desktop software.
 - Having your anime lists on your computer, thus you can access it without a connection and doesn't depend on a third party service.
 - Search animes online (through API like Anilist), that provide information (titles, cover image, synopsis, genres, etc.) about them.
 - Manage multiple lists (watched, planned, etc... You can create the lists you want).
-- Add animes to your lists directly from a search, thus you don't have to add the title, synopsis, image or whatever yourself (but you still can if you want it).
-- Backup, it would be sad to lose your lists with 250 animes...
+- Add animes to your lists directly from a search, thus you don't have to add the title, synopsis, image or whatever yourself.
 
 ### Optional features
 

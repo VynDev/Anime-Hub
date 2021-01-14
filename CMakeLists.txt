@@ -44,6 +44,9 @@ set(PROJECT_SOURCES
         ${SOURCE_DIR}/SettingsUI.ui
         ${SOURCE_DIR}/Settings.cpp
         ${SOURCE_DIR}/Settings.h
+        ${SOURCE_DIR}/AboutUI.cpp
+        ${SOURCE_DIR}/AboutUI.h
+        ${SOURCE_DIR}/AboutUI.ui
         styles.qrc
 )
 

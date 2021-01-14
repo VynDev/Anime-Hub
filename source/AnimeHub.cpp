@@ -10,6 +10,7 @@
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
 #include <QFile>
+#include <QMessageBox>
 
 #include <iostream>
 #include "json-parser/JSON.h"
@@ -146,6 +147,19 @@ void AnimeHub::AddAnimeToList(const QString& listName, Anime* anime) {
     Save();
 }
 
+void AnimeHub::RemoveAnimeFromList(const QString &listName, Anime *anime) {
+    std::cout << "Removing anime" << std::endl;
+
+    for (int i = 0; i < lists[listName]->size(); ++i) {
+        QList<Anime *>* list = lists[listName];
+        if ((*list)[i] == anime) {
+            list->remove(i, 1);
+        }
+    }
+    RefreshAnimeListUI();
+    Save();
+}
+
 void AnimeHub::CreateList(const QString& listName) {
     if (listName.isEmpty() || lists.find(listName) != lists.end())
         return ;
@@ -159,15 +173,18 @@ void AnimeHub::SelectList(const QString& listName) {
     RefreshAnimeListUI();
 }
 
+void AnimeHub::DeleteList(const QString &listName) {
+    lists.remove(listName);
+    RefreshListsUI();
+    Save();
+}
+
 void AnimeHub::SetupAnimePreviewSearchContextMenu(AnimePreviewUI* animePreviewUI, Anime* anime) {
     animePreviewUI->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(animePreviewUI, &AnimePreviewUI::customContextMenuRequested, [=] (const QPoint& pos) {
-        // for most widgets
         QPoint globalPos = animePreviewUI->mapToGlobal(pos);
-        // for QAbstractScrollArea and derived classes you would use:
-        // QPoint globalPos = myWidget->viewport()->mapToGlobal(pos);
-
         QMenu myMenu;
+
         myMenu.addAction(anime->GetTitle());
 
         QHash<QAction*, QString> actions;
@@ -181,6 +198,27 @@ void AnimeHub::SetupAnimePreviewSearchContextMenu(AnimePreviewUI* animePreviewUI
             if (selectedAction == action) {
                 AddAnimeToList(actions[action], anime);
             }
+        }
+    });
+}
+
+void AnimeHub::SetupAnimePreviewListContextMenu(AnimePreviewUI* animePreviewUI, Anime* anime, const QString& selectedList) {
+    animePreviewUI->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(animePreviewUI, &AnimePreviewUI::customContextMenuRequested, [=] (const QPoint& pos) {
+        QPoint globalPos = animePreviewUI->mapToGlobal(pos);
+        QMenu myMenu;
+
+        myMenu.addAction(anime->GetTitle());
+        QAction *removeAction = myMenu.addAction("Remove from the list");
+        QAction* selectedAction = myMenu.exec(globalPos);
+
+        if (selectedAction == removeAction) {
+            QMessageBox msgBox;
+            msgBox.setText("Do you really want to delete '" + anime->GetTitle() + "' from the list ?");
+            msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+            auto answer = msgBox.exec();
+            if (answer == QMessageBox::Yes)
+                RemoveAnimeFromList(selectedList, anime);
         }
     });
 }
@@ -348,6 +386,16 @@ void AnimeHub::on_newListButton_clicked()
     CreateList(newListName);
 }
 
+void AnimeHub::on_deleteListButton_clicked()
+{
+    QMessageBox msgBox;
+    msgBox.setText("Do you really want to delete the current list ?");
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    auto answer = msgBox.exec();
+    if (answer == QMessageBox::Yes)
+        DeleteList(ui->listsComboBox->currentText());
+}
+
 // UI related methods
 
 void AnimeHub::RefreshAnimeListUI() {
@@ -361,6 +409,7 @@ void AnimeHub::RefreshAnimeListUI() {
         AnimePreviewUI* animePreviewUI = new AnimePreviewUI(anime, this);
         animeListPreviewListUIs.push_back(animePreviewUI);
         ui->animeListLayout->addWidget(animePreviewUI);
+        SetupAnimePreviewListContextMenu(animePreviewUI, anime, selectedList);
     }
 }
 
