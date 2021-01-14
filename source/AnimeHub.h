@@ -54,7 +54,6 @@ private slots:
     void on_newListButton_clicked();
     void on_listsComboBox_currentTextChanged(const QString &arg1);
     void on_searchLineEdit_returnPressed();
-
     void on_deleteListButton_clicked();
 
 public slots:
@@ -70,13 +69,9 @@ private:
     static QNetworkAccessManager *manager;
 
     QVector<Anime *> animes; // deprecated
-
-    QMap<QString, QVector<Anime *>*> lists;
-
+    QMap<QString, QVector<Anime *>> lists;
     QVector<AnimePreviewUI *> animeListPreviewListUIs;
-
     QVector<AnimePreviewUI *> animePreviewSearchUIs;
-
     QString selectedList;
 };
 #endif // ANIMEHUB_H

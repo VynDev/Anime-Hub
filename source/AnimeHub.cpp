@@ -34,14 +34,11 @@ AnimeHub::AnimeHub(QWidget *parent)
 
     Load();
     if (lists.isEmpty())
-        lists[DefaultListName] = new QVector<Anime*>;
-
+        lists[DefaultListName].push_back({});
     RefreshListsUI();
     RefreshAnimeListUI();
-
     if (!settings.ShouldUseSystemTheme())
         LoadStyle(":/styles/vyn-dark.qss");
-
     connect(ui->actionSettings, SIGNAL(triggered()), this, SLOT(OpenSettings()));
     connect(ui->actionAbout, SIGNAL(triggered()), this, SLOT(OpenAbout()));
 }
@@ -83,7 +80,7 @@ void AnimeHub::Save() {
         auto& listJson = listsJson.AddObject();
         listJson["name"] = listName.toStdString();
         auto& animesJson = listJson.AddArray("animes");
-        for (Anime* anime : *lists[listName]) {
+        for (Anime* anime : lists[listName]) {
             auto& animeJson = animesJson.AddObject();
             animeJson["title"] = anime->GetTitle().toStdString();
             animeJson["description"] = anime->GetDescription().toStdString();
@@ -111,7 +108,7 @@ void AnimeHub::Load() {
     JSON::Object json(settings.GetPath().toStdString());
     if (json.IsValid()) {
         for (auto& listJson : json["lists"].AsArray().GetElements()) {
-            lists[QString::fromStdString(listJson->AsObject()["name"].AsString())] = new QVector<Anime*>;
+            lists[QString::fromStdString(listJson->AsObject()["name"].AsString())];
             auto& animesJson = listJson->AsObject()["animes"].AsArray();
             for (int i = 0; i < animesJson.GetLenth(); ++i) {
                 Anime* anime = new Anime(QString::fromStdString(animesJson[i].AsObject()["title"].AsString()));
@@ -133,7 +130,7 @@ void AnimeHub::Load() {
                 anime->SetEndMonth(animesJson[i].AsObject()["endDate"].AsObject()["month"].AsNumber());
                 anime->SetEndDay(animesJson[i].AsObject()["endDate"].AsObject()["day"].AsNumber());
 
-                lists[QString::fromStdString(listJson->AsObject()["name"].AsString())]->push_back(anime);
+                lists[QString::fromStdString(listJson->AsObject()["name"].AsString())].push_back(anime);
             }
         }
         return ;
@@ -150,7 +147,7 @@ const QVector<Anime *>& AnimeHub::GetAnimes() const {
 void AnimeHub::AddAnimeToList(const QString& listName, Anime* anime) {
     std::cout << "Adding anime" << std::endl;
 
-    lists[listName]->push_back(anime);
+    lists[listName].push_back(anime);
     RefreshAnimeListUI();
     Save();
 }
@@ -158,10 +155,11 @@ void AnimeHub::AddAnimeToList(const QString& listName, Anime* anime) {
 void AnimeHub::RemoveAnimeFromList(const QString &listName, Anime *anime) {
     std::cout << "Removing anime" << std::endl;
 
-    for (int i = 0; i < lists[listName]->size(); ++i) {
-        QList<Anime *>* list = lists[listName];
-        if ((*list)[i] == anime) {
-            list->remove(i, 1);
+    for (int i = 0; i < lists[listName].size(); ++i) {
+        QList<Anime *>& list = lists[listName];
+        if (list[i] == anime) {
+            delete list[i];
+            list.remove(i, 1);
         }
     }
     RefreshAnimeListUI();
@@ -171,7 +169,7 @@ void AnimeHub::RemoveAnimeFromList(const QString &listName, Anime *anime) {
 void AnimeHub::CreateList(const QString& listName) {
     if (listName.isEmpty() || lists.find(listName) != lists.end())
         return ;
-    lists[listName] = new QVector<Anime*>;
+    lists[listName];
     RefreshListsUI();
     Save();
 }
@@ -413,12 +411,13 @@ void AnimeHub::RefreshAnimeListUI() {
         delete animePreviewUI;
     }
 
-    for (Anime* anime : *lists[selectedList]) {
+    for (Anime* anime : lists[selectedList]) {
         AnimePreviewUI* animePreviewUI = new AnimePreviewUI(anime, this);
         animeListPreviewListUIs.push_back(animePreviewUI);
         ui->animeListLayout->addWidget(animePreviewUI);
         SetupAnimePreviewListContextMenu(animePreviewUI, anime, selectedList);
     }
+
 }
 
 void AnimeHub::RefreshListsUI() {
