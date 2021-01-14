@@ -60,6 +60,7 @@ private slots:
 public slots:
 
     void OpenSettings();
+    void OpenAbout();
 
 private:
     Ui::AnimeHub *ui;

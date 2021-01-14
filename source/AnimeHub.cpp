@@ -17,6 +17,7 @@
 #include "AnimePreviewUI.h"
 #include "Anime.h"
 #include "SettingsUI.h"
+#include "AboutUI.h"
 
 const QString DefaultListName = "Watched";
 
@@ -42,6 +43,7 @@ AnimeHub::AnimeHub(QWidget *parent)
         LoadStyle(":/styles/vyn-dark.qss");
 
     connect(ui->actionSettings, SIGNAL(triggered()), this, SLOT(OpenSettings()));
+    connect(ui->actionAbout, SIGNAL(triggered()), this, SLOT(OpenAbout()));
 }
 
 AnimeHub::~AnimeHub()
@@ -64,6 +66,12 @@ void AnimeHub::OpenSettings() {
     std::cout << "Opening settings" << std::endl;
     SettingsUI *settingsUI = new SettingsUI(&settings, this);
     settingsUI->show();
+}
+
+void AnimeHub::OpenAbout() {
+    std::cout << "Opening about" << std::endl;
+    AboutUI *aboutUI = new AboutUI(this);
+    aboutUI->show();
 }
 
 void AnimeHub::Save() {
