@@ -9,14 +9,16 @@
 #include <QStyleOption>
 #include <QPainter>
 
+
+// Function used to format number in a "date" format.
 QString DateNumber(int number) {
     if (number < 0)
         return "?";
     return (number < 10 ? "0" : "") + QString::number(number);
 }
 
-AnimePreviewUI::AnimePreviewUI(Anime* anime, QWidget *parent) :
-    QWidget(parent),
+// [Todo] Replace the Anime* anime to a reference, because we don't need to store it and it's misleading for the caller.
+AnimePreviewUI::AnimePreviewUI(Anime* anime, QWidget *parent) : QWidget(parent),
     ui(new Ui::AnimePreviewUI)
 {
     ui->setupUi(this);
@@ -40,6 +42,11 @@ AnimePreviewUI::AnimePreviewUI(Anime* anime, QWidget *parent) :
     ui->datesLabel->setText(DateNumber(anime->GetStartDay()) + "/" + DateNumber(anime->GetStartMonth()) + "/" + DateNumber(anime->GetStartYear()) + " - " + DateNumber(anime->GetEndDay()) + "/" + DateNumber(anime->GetEndMonth()) + "/" + DateNumber(anime->GetEndYear()));
 }
 
+AnimePreviewUI::~AnimePreviewUI() {
+    delete ui;
+}
+
+// This method directly fetch the image with the given url, so it may takes some times before it applies
 void AnimePreviewUI::ApplyCoverImageByUrl(const QString& coverImageUrl) {
     QNetworkRequest coverImageRequest;
     coverImageRequest.setUrl(QUrl(coverImageUrl));
@@ -61,11 +68,7 @@ void AnimePreviewUI::ApplyCoverImageByUrl(const QString& coverImageUrl) {
     });
 }
 
-AnimePreviewUI::~AnimePreviewUI()
-{
-    delete ui;
-}
-
+// This method must exist for Qss to work.
 void AnimePreviewUI::paintEvent(QPaintEvent *) {
     QStyleOption opt;
     opt.initFrom(this);

@@ -19,12 +19,13 @@
 #include "SettingsUI.h"
 #include "AboutUI.h"
 
+// [Todo] Fix pattern design errors and add comments when needed.
+
 const QString DefaultListName = "Watched";
 
 QNetworkAccessManager* AnimeHub::manager = nullptr;
 
-AnimeHub::AnimeHub(QWidget *parent)
-    : QMainWindow(parent)
+AnimeHub::AnimeHub(QWidget *parent) : QMainWindow(parent)
     , ui(new Ui::AnimeHub), settings("./settings.json"), selectedList(DefaultListName)
 {
     ui->setupUi(this);
@@ -43,8 +44,7 @@ AnimeHub::AnimeHub(QWidget *parent)
     connect(ui->actionAbout, SIGNAL(triggered()), this, SLOT(OpenAbout()));
 }
 
-AnimeHub::~AnimeHub()
-{
+AnimeHub::~AnimeHub() {
     delete ui;
     delete AnimeHub::manager;
 }
@@ -364,36 +364,30 @@ void AnimeHub::SearchAnime(const QString& animeName) {
 
 // Events
 
-void AnimeHub::on_addAnimeButton_clicked()
-{
+void AnimeHub::on_addAnimeButton_clicked() {
    AddAnimeToList(DefaultListName, new Anime("ez"));
 }
 
-void AnimeHub::on_searchButton_clicked()
-{
+void AnimeHub::on_searchButton_clicked() {
     SearchAnime(ui->searchLineEdit->text().isEmpty() ? "sword art online" : ui->searchLineEdit->text());
 }
 
-void AnimeHub::on_searchLineEdit_returnPressed()
-{
+void AnimeHub::on_searchLineEdit_returnPressed() {
     ui->searchButton->click();
 }
 
-void AnimeHub::on_listsComboBox_currentTextChanged(const QString &listName)
-{
+void AnimeHub::on_listsComboBox_currentTextChanged(const QString &listName) {
     if (listName.isEmpty() || lists.find(listName) == lists.end())
         return ;
     SelectList(listName);
 }
 
-void AnimeHub::on_newListButton_clicked()
-{
+void AnimeHub::on_newListButton_clicked() {
     QString newListName = QInputDialog::getText(this, "New list", "Chose a name for the new list");
     CreateList(newListName);
 }
 
-void AnimeHub::on_deleteListButton_clicked()
-{
+void AnimeHub::on_deleteListButton_clicked() {
     QMessageBox msgBox;
     msgBox.setText("Do you really want to delete the current list ?");
     msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);

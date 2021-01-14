@@ -2,8 +2,9 @@
 #include "ui_SettingsUI.h"
 #include "AnimeHub.h"
 
-SettingsUI::SettingsUI(Settings *settings, QWidget *parent) :
-    QMainWindow(parent),
+// Because this class is very simple, I just kept the basic function events.
+
+SettingsUI::SettingsUI(Settings *settings, QWidget *parent) : QMainWindow(parent),
     ui(new Ui::SettingsUI), settings(settings)
 {
     ui->setupUi(this);
@@ -14,13 +15,12 @@ SettingsUI::SettingsUI(Settings *settings, QWidget *parent) :
     ui->systemThemeCheckBox->setChecked(settings->ShouldUseSystemTheme());
 }
 
-SettingsUI::~SettingsUI()
-{
+SettingsUI::~SettingsUI() {
     delete ui;
 }
 
-void SettingsUI::on_saveButton_clicked()
-{
+void SettingsUI::on_saveButton_clicked() {
+
     settings->SetPath(ui->pathLineEdit->text());
     settings->UseSystemTheme(ui->systemThemeCheckBox->isChecked());
     settings->EnableImageFetching(ui->fetchImagesCheckBox->isChecked());
@@ -29,12 +29,10 @@ void SettingsUI::on_saveButton_clicked()
     close();
 }
 
-void SettingsUI::on_systemThemeCheckBox_stateChanged(int state)
-{
-    if (state == Qt::Checked) {
+// Just a simple toggle button here.
+void SettingsUI::on_systemThemeCheckBox_stateChanged(int state) {
+    if (state == Qt::Checked)
         static_cast<AnimeHub *>(parent())->ResetStyle();
-    }
-    else {
+    else
         static_cast<AnimeHub *>(parent())->LoadStyle(":/styles/vyn-dark.qss");
-    }
 }

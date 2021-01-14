@@ -1,7 +1,8 @@
 #include "Anime.h"
 
-Anime::Anime(const QString& title) : title(title)
-{
+// All methods in this class are self explanatory and simple.
+
+Anime::Anime(const QString& title) : title(title) {
 
 }
 

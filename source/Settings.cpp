@@ -3,8 +3,7 @@
 #include <QFile>
 #include "json-parser/JSON.h"
 
-Settings::Settings(const QString& settingsPath) : settingsPath(settingsPath)
-{
+Settings::Settings(const QString& settingsPath) : settingsPath(settingsPath) {
     Reload();
 }
 
@@ -48,7 +47,6 @@ bool Settings::ShouldCache() const {
 bool Settings::ShouldUseSystemTheme() const {
     return bShouldUseSystemTheme;
 }
-
 
 void Settings::SetPath(const QString& path) {
     this->path = path;
