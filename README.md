@@ -23,7 +23,20 @@ Keep your anime lists on your computer with this desktop software.
 
 ## Build & Run
 
-Structure and dependencies changes are expected to occur soon, instructions will be provided when the project will be stable enough
+### Requirements
+
+- g++ (developed with g++ (GCC) 10.2.0 on Arch Linux)
+- cmake
+- premake5 (used by dependencies)
+- make
+- Qt6
+
+### Steps (Linux)
+
+```
+cmake
+make
+```
 
 ## License
 

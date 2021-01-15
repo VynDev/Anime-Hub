@@ -72,3 +72,17 @@ target_link_libraries(AnimeHub PRIVATE Qt${QT_VERSION_MAJOR}::Network)
 target_include_directories(AnimeHub PRIVATE /home/vyn/Development/Projects/Qt/AnimeHub/libs/json-parser/include)
 target_link_libraries(AnimeHub PRIVATE -L/home/vyn/Development/Projects/Qt/AnimeHub/libs/json-parser/bin)
 target_link_libraries(AnimeHub PRIVATE -ljson-parser)
+
+add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/libs/json-parser/bin/libjson-parser.a
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/libs/json-parser
+    COMMENT "Building json-parser library"
+    COMMAND premake5 gmake
+    COMMAND make
+    )
+
+add_custom_target(json-parser ALL
+    COMMAND echo "custom target dependency"
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/libs/json-parser/bin/libjson-parser.a
+    VERBATIM)
+
+add_dependencies(AnimeHub json-parser)
