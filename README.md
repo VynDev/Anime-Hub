@@ -25,6 +25,7 @@ Keep your anime lists on your computer with this desktop software.
 
 ### Requirements
 
+- git
 - g++ (developed with g++ (GCC) 10.2.0 on Arch Linux)
 - cmake
 - premake5 (used by dependencies)
@@ -33,7 +34,9 @@ Keep your anime lists on your computer with this desktop software.
 
 ### Steps (Linux)
 
+In the project folder:
 ```
+git submodule update --init --recursive
 cmake
 make
 ```
