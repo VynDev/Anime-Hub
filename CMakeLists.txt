@@ -69,8 +69,8 @@ endif()
 target_link_libraries(AnimeHub PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_link_libraries(AnimeHub PRIVATE Qt${QT_VERSION_MAJOR}::Network)
 
-target_include_directories(AnimeHub PRIVATE /home/vyn/Development/Projects/Qt/AnimeHub/libs/json-parser/include)
-target_link_libraries(AnimeHub PRIVATE -L/home/vyn/Development/Projects/Qt/AnimeHub/libs/json-parser/bin)
+target_include_directories(AnimeHub PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/libs/json-parser/include)
+target_link_libraries(AnimeHub PRIVATE -L${CMAKE_CURRENT_SOURCE_DIR}/libs/json-parser/bin)
 target_link_libraries(AnimeHub PRIVATE -ljson-parser)
 
 add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/libs/json-parser/bin/libjson-parser.a

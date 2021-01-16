@@ -21,12 +21,10 @@
 
 // [Todo] Fix pattern design errors and add comments when needed.
 
-const QString DefaultListName = "Watched";
-
 QNetworkAccessManager* AnimeHub::manager = nullptr;
 
 AnimeHub::AnimeHub(QWidget *parent) : QMainWindow(parent)
-    , ui(new Ui::AnimeHub), settings("./settings.json"), selectedList(DefaultListName)
+    , ui(new Ui::AnimeHub), settings("./settings.json")
 {
     ui->setupUi(this);
     ui->animeListLayout->setAlignment(Qt::AlignTop);
@@ -35,7 +33,7 @@ AnimeHub::AnimeHub(QWidget *parent) : QMainWindow(parent)
 
     Load();
     if (lists.isEmpty())
-        lists[DefaultListName].push_back({});
+        lists["Watched"];
     RefreshListsUI();
     RefreshAnimeListUI();
     if (!settings.ShouldUseSystemTheme())
@@ -363,10 +361,6 @@ void AnimeHub::SearchAnime(const QString& animeName) {
 }
 
 // Events
-
-void AnimeHub::on_addAnimeButton_clicked() {
-   AddAnimeToList(DefaultListName, new Anime("ez"));
-}
 
 void AnimeHub::on_searchButton_clicked() {
     SearchAnime(ui->searchLineEdit->text().isEmpty() ? "sword art online" : ui->searchLineEdit->text());

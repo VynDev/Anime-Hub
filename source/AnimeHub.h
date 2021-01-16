@@ -49,7 +49,6 @@ public:
     void LoadStyle(const QString& file);
 
 private slots:
-    void on_addAnimeButton_clicked();
     void on_searchButton_clicked();
     void on_newListButton_clicked();
     void on_listsComboBox_currentTextChanged(const QString &arg1);

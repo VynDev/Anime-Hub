@@ -9,7 +9,6 @@
 #include <QStyleOption>
 #include <QPainter>
 
-
 // Function used to format number in a "date" format.
 QString DateNumber(int number) {
     if (number < 0)
