@@ -28,7 +28,6 @@ AnimeHub::AnimeHub(QWidget *parent) : QMainWindow(parent)
 {
     ui->setupUi(this);
     ui->animeListLayout->setAlignment(Qt::AlignTop);
-
     AnimeHub::manager = new QNetworkAccessManager(this);
 
     Load();

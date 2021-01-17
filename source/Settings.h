@@ -26,7 +26,7 @@ private:
 
     QString settingsPath;
 
-    QString path = "./save.json";
+    QString path;
     bool bShouldFetchImage = true;
     bool bShouldCache = true;
     bool bShouldUseSystemTheme = false;

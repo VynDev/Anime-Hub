@@ -2,8 +2,11 @@
 #include <iostream>
 #include <QFile>
 #include "json-parser/JSON.h"
+#include <QDir>
 
-Settings::Settings(const QString& settingsPath) : settingsPath(settingsPath) {
+// [Todo] Remove settingsPath arg
+Settings::Settings(const QString& settingsPath) : settingsPath(QDir::homePath() + "/.config/Anime-Hub/settings.json"), path(QDir::homePath() + "/.config/Anime-Hub/save.json") {
+    QDir().mkpath(QDir::homePath() + "/.config/Anime-Hub");
     Reload();
 }
 
