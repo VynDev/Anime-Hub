@@ -5,7 +5,10 @@
 #include <QDir>
 
 // [Todo] Remove settingsPath arg
-Settings::Settings(const QString& settingsPath) : settingsPath(QDir::homePath() + "/.config/Anime-Hub/settings.json"), path(QDir::homePath() + "/.config/Anime-Hub/save.json") {
+Settings::Settings() :
+    settingsPath(QDir::homePath() + "/.config/Anime-Hub/settings.json"),
+    path(QDir::homePath() + "/.config/Anime-Hub/save.json")
+{
     QDir().mkpath(QDir::homePath() + "/.config/Anime-Hub");
     Reload();
 }
@@ -25,7 +28,7 @@ void Settings::Reload() {
     JSON::Object settingsJson(settingsPath.toStdString());
 
     if (!settingsJson.IsValid()) {
-        std::cout << "Couldn't open settings.json" << std::endl;
+        std::cout << "Couldn't open " + settingsPath.toStdString() << std::endl;
         return;
     }
 

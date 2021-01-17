@@ -2,7 +2,7 @@
 
 // All methods in this class are self explanatory and simple.
 
-Anime::Anime(const QString& title) : title(title) {
+Anime::Anime() {
 
 }
 
@@ -69,6 +69,10 @@ void Anime::SetDescription(const QString& description) {
 
 void Anime::SetCoverImageByUrl(const QString& coverImageUrl) {
     this->coverImageUrl = coverImageUrl;
+}
+
+void Anime::SetGenres(const QVector<QString>& genres) {
+    this->genres = genres;
 }
 
 void Anime::AddGenre(const QString& genreName) {

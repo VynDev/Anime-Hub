@@ -24,26 +24,39 @@
 QNetworkAccessManager* AnimeHub::manager = nullptr;
 
 AnimeHub::AnimeHub(QWidget *parent) : QMainWindow(parent)
-    , ui(new Ui::AnimeHub), settings("./settings.json")
+    , ui(new Ui::AnimeHub)
 {
     ui->setupUi(this);
-    ui->animeListLayout->setAlignment(Qt::AlignTop);
-    AnimeHub::manager = new QNetworkAccessManager(this);
 
-    Load();
-    if (lists.isEmpty())
-        lists["Watched"];
-    RefreshListsUI();
-    RefreshAnimeListUI();
+    AnimeHub::manager = new QNetworkAccessManager(this);
+    settingsUI = new SettingsUI(&settings, this);
+    aboutUI = new AboutUI(this);
+
     if (!settings.ShouldUseSystemTheme())
         LoadStyle(":/styles/vyn-dark.qss");
+
+    Load(); // Anime lists
+    if (lists.isEmpty())
+        lists["Watched"]; // Generate a default list
+
+    RefreshListsUI();
+    RefreshAnimeListUI();
+
     connect(ui->actionSettings, SIGNAL(triggered()), this, SLOT(OpenSettings()));
     connect(ui->actionAbout, SIGNAL(triggered()), this, SLOT(OpenAbout()));
+    ui->animeListLayout->setAlignment(Qt::AlignTop);
 }
 
 AnimeHub::~AnimeHub() {
     delete ui;
     delete AnimeHub::manager;
+    delete settingsUI;
+    delete aboutUI;
+    for (auto& list : lists) {
+        for (int i = 0; i < list.size(); ++i) {
+            delete list[i];
+        }
+    }
 }
 
 void AnimeHub::ResetStyle() {
@@ -58,13 +71,11 @@ void AnimeHub::LoadStyle(const QString& file) {
 
 void AnimeHub::OpenSettings() {
     std::cout << "Opening settings" << std::endl;
-    SettingsUI *settingsUI = new SettingsUI(&settings, this);
     settingsUI->show();
 }
 
 void AnimeHub::OpenAbout() {
     std::cout << "Opening about" << std::endl;
-    AboutUI *aboutUI = new AboutUI(this);
     aboutUI->show();
 }
 
@@ -108,7 +119,8 @@ void AnimeHub::Load() {
             lists[QString::fromStdString(listJson->AsObject()["name"].AsString())];
             auto& animesJson = listJson->AsObject()["animes"].AsArray();
             for (int i = 0; i < animesJson.GetLenth(); ++i) {
-                Anime* anime = new Anime(QString::fromStdString(animesJson[i].AsObject()["title"].AsString()));
+                Anime* anime = new Anime;
+                anime->SetTitle(QString::fromStdString(animesJson[i].AsObject()["title"].AsString()));
                 anime->SetDescription(QString::fromStdString(animesJson[i].AsObject()["description"].AsString()));
                 anime->SetCoverImageByUrl(QString::fromStdString(animesJson[i].AsObject()["coverImageUrl"].AsString()));
                 anime->SetStatus(QString::fromStdString(animesJson[i].AsObject()["status"].AsString()));
@@ -141,24 +153,19 @@ const QVector<Anime *>& AnimeHub::GetAnimes() const {
     return animes;
 }
 
-void AnimeHub::AddAnimeToList(const QString& listName, Anime* anime) {
+void AnimeHub::AddAnimeToList(const QString& listName, const Anime& anime) {
     std::cout << "Adding anime" << std::endl;
 
-    lists[listName].push_back(anime);
+    lists[listName].push_back(new Anime(anime));
     RefreshAnimeListUI();
     Save();
 }
 
-void AnimeHub::RemoveAnimeFromList(const QString &listName, Anime *anime) {
+void AnimeHub::RemoveAnimeFromList(const QString &listName, int index) {
     std::cout << "Removing anime" << std::endl;
 
-    for (int i = 0; i < lists[listName].size(); ++i) {
-        QList<Anime *>& list = lists[listName];
-        if (list[i] == anime) {
-            delete list[i];
-            list.remove(i, 1);
-        }
-    }
+    delete lists[listName][index];
+    lists[listName].remove(index, 1);
     RefreshAnimeListUI();
     Save();
 }
@@ -182,13 +189,13 @@ void AnimeHub::DeleteList(const QString &listName) {
     Save();
 }
 
-void AnimeHub::SetupAnimePreviewSearchContextMenu(AnimePreviewUI* animePreviewUI, Anime* anime) {
+void AnimeHub::SetupAnimePreviewSearchContextMenu(AnimePreviewUI* animePreviewUI) {
     animePreviewUI->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(animePreviewUI, &AnimePreviewUI::customContextMenuRequested, [=] (const QPoint& pos) {
         QPoint globalPos = animePreviewUI->mapToGlobal(pos);
         QMenu myMenu;
 
-        myMenu.addAction(anime->GetTitle());
+        myMenu.addAction(animePreviewUI->GetTitle());
 
         QHash<QAction*, QString> actions;
         for (const QString& listName : lists.keys()) {
@@ -199,29 +206,29 @@ void AnimeHub::SetupAnimePreviewSearchContextMenu(AnimePreviewUI* animePreviewUI
 
         for (auto action : actions.keys()) {
             if (selectedAction == action) {
-                AddAnimeToList(actions[action], anime);
+                AddAnimeToList(actions[action], *animePreviewUI);
             }
         }
     });
 }
 
-void AnimeHub::SetupAnimePreviewListContextMenu(AnimePreviewUI* animePreviewUI, Anime* anime, const QString& selectedList) {
+void AnimeHub::SetupAnimePreviewListContextMenu(AnimePreviewUI* animePreviewUI, int index) {
     animePreviewUI->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(animePreviewUI, &AnimePreviewUI::customContextMenuRequested, [=] (const QPoint& pos) {
         QPoint globalPos = animePreviewUI->mapToGlobal(pos);
         QMenu myMenu;
 
-        myMenu.addAction(anime->GetTitle());
+        myMenu.addAction(animePreviewUI->GetTitle());
         QAction *removeAction = myMenu.addAction("Remove from the list");
         QAction* selectedAction = myMenu.exec(globalPos);
 
         if (selectedAction == removeAction) {
             QMessageBox msgBox;
-            msgBox.setText("Do you really want to delete '" + anime->GetTitle() + "' from the list ?");
+            msgBox.setText("Do you really want to delete '" + animePreviewUI->GetTitle() + "' from the list ?");
             msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
             auto answer = msgBox.exec();
             if (answer == QMessageBox::Yes)
-                RemoveAnimeFromList(selectedList, anime);
+                RemoveAnimeFromList(selectedList, index);
         }
     });
 }
@@ -283,8 +290,6 @@ void AnimeHub::SearchAnime(const QString& animeName) {
             std::cout << reply->errorString().toStdString() << std::endl;
             std::cout << reply->error() << std::endl;
             QString answer = reply->readAll();
-            //QTextCodec *codec = QTextCodec::codecForName("UTF-8");
-           // QString stringg = codec->toUnicode(QByteArray(answer.toUtf8()));
             std::cout << answer.toStdString() << std::endl;
             return;
         }
@@ -314,47 +319,72 @@ void AnimeHub::SearchAnime(const QString& animeName) {
             delete animePreviewUI;
         }
 
+        // This loop will check each field of the media before adding it to the Anime object.
         for (auto& media : medias) {
-            QString title = QString::fromStdString(media->AsObject()["title"].AsObject()["romaji"].AsString());
-            QString description = !media->AsObject()["description"].IsNull() ? QString::fromStdString(media->AsObject()["description"].AsString()) : "null";
-            QString coverImageUrl = QString::fromStdString(media->AsObject()["coverImage"].AsObject()["large"].AsString()).replace("\\", "");
-            QString status = QString::fromStdString(media->AsObject()["status"].AsString());
-            int episodes = !media->AsObject()["episodes"].IsNull() ? media->AsObject()["episodes"].AsNumber() : -1;
-
-            JSON::Object& startDateJson = media->AsObject()["startDate"].AsObject();
-            int startYear = startDateJson["year"].IsNull() ? -1 : startDateJson["year"].AsNumber();
-            int startMonth = startDateJson["month"].IsNull() ? -1 : startDateJson["month"].AsNumber();
-            int startDay = startDateJson["day"].IsNull() ? -1 : startDateJson["day"].AsNumber();
-
-            JSON::Object& endDateJson = media->AsObject()["endDate"].AsObject();
-            int endYear = endDateJson["year"].IsNull() ? -1 : endDateJson["year"].AsNumber();
-            int endMonth = endDateJson["month"].IsNull() ? -1 : endDateJson["month"].AsNumber();
-            int endDay = endDateJson["day"].IsNull() ? -1 : endDateJson["day"].AsNumber();
-
-            Anime *anime = new Anime(title);
-            anime->SetDescription(description);
-            if (settings.ShouldFetchImages())
-                anime->SetCoverImageByUrl(coverImageUrl);
-            for (int i = 0; i < media->AsObject()["genres"].AsArray().GetLenth(); ++i) {
-                anime->AddGenre(QString::fromStdString(media->AsObject()["genres"].AsArray()[i].AsString()));
+            AnimePreviewUI *anime = new AnimePreviewUI(this);
+            if (media->IsObject() && media->AsObject()["title"].IsObject() && media->AsObject()["title"].AsObject()["romaji"].IsString()) {
+                anime->SetTitle(QString::fromStdString(media->AsObject()["title"].AsObject()["romaji"].AsString()));
             }
-            anime->SetStatus(status);
-            anime->SetEpisodes(episodes);
+            else {
+               anime->SetTitle("[Unknown]");
+            }
 
-            anime->SetStartYear(startYear);
-            anime->SetStartMonth(startMonth);
-            anime->SetStartDay(startDay);
+            if (media->IsObject() && media->AsObject()["description"].IsString()) {
+                anime->SetDescription(QString::fromStdString(media->AsObject()["description"].AsString()));
+            }
+            else {
+                anime->SetDescription("[No description provided]");
+            }
 
-            anime->SetEndYear(endYear);
-            anime->SetEndMonth(endMonth);
-            anime->SetEndDay(endDay);
+            if (media->IsObject() && media->AsObject()["coverImage"].IsObject() && media->AsObject()["coverImage"].AsObject()["large"].IsString()) {
+                if (settings.ShouldFetchImages())
+                    anime->SetCoverImageByUrl(QString::fromStdString(media->AsObject()["coverImage"].AsObject()["large"].AsString()).replace("\\", ""));
+            }
+            else {
+                anime->SetCoverImageByUrl("[No image]");
+            }
 
-            AnimePreviewUI *preview = new AnimePreviewUI(anime, this);
-            preview->setObjectName("animePreviewUI");
-            animePreviewSearchUIs.push_back(preview);
-            ui->animeSearchResult->addWidget(preview);
+            if (media->IsObject() && media->AsObject()["status"].IsString()) {
+                anime->SetStatus(QString::fromStdString(media->AsObject()["status"].AsString()));
+            }
+            else {
+                anime->SetStatus("[Unknown status]");
+            }
 
-            SetupAnimePreviewSearchContextMenu(preview, anime);
+            if (media->IsObject() && media->AsObject()["episodes"].IsNumber()) {
+                anime->SetEpisodes(media->AsObject()["episodes"].AsNumber());
+            }
+            else {
+                anime->SetEpisodes(-1);
+            }
+
+            if (media->IsObject() && media->AsObject()["startDate"].IsObject()) {
+                JSON::Object& startDateJson = media->AsObject()["startDate"].AsObject();
+                anime->SetStartYear(startDateJson["year"].IsNumber() ? startDateJson["year"].AsNumber() : -1);
+                anime->SetStartMonth(startDateJson["month"].IsNumber() ? startDateJson["month"].AsNumber() : -1);
+                anime->SetStartDay(startDateJson["day"].IsNumber() ? startDateJson["day"].AsNumber() : -1);
+            }
+
+            if (media->IsObject() && media->AsObject()["endDate"].IsObject()) {
+                JSON::Object& endDateJson = media->AsObject()["startDate"].AsObject();
+                anime->SetEndYear(endDateJson["year"].IsNumber() ? endDateJson["year"].AsNumber() : -1);
+                anime->SetEndMonth(endDateJson["month"].IsNumber() ? endDateJson["month"].AsNumber() : -1);
+                anime->SetEndDay(endDateJson["day"].IsNumber() ? endDateJson["day"].AsNumber() : -1);
+            }
+
+            if (media->IsObject() && media->AsObject()["genres"].IsArray()) {
+                for (int i = 0; i < media->AsObject()["genres"].AsArray().GetLenth(); ++i) {
+                    if (media->AsObject()["genres"].AsArray()[i].IsString())
+                        anime->AddGenre(QString::fromStdString(media->AsObject()["genres"].AsArray()[i].AsString()));
+                }
+            }
+
+            anime->Refresh();
+            anime->setObjectName("animePreviewUI");
+            animePreviewSearchUIs.push_back(anime);
+            ui->animeSearchResult->addWidget(anime);
+
+            SetupAnimePreviewSearchContextMenu(anime);
         }
     });
 }
@@ -398,11 +428,11 @@ void AnimeHub::RefreshAnimeListUI() {
         delete animePreviewUI;
     }
 
-    for (Anime* anime : lists[selectedList]) {
-        AnimePreviewUI* animePreviewUI = new AnimePreviewUI(anime, this);
+    for (int i = 0; i < lists[selectedList].length(); ++i) {
+        AnimePreviewUI* animePreviewUI = new AnimePreviewUI(*(lists[selectedList][i]), this);
         animeListPreviewListUIs.push_back(animePreviewUI);
         ui->animeListLayout->addWidget(animePreviewUI);
-        SetupAnimePreviewListContextMenu(animePreviewUI, anime, selectedList);
+        SetupAnimePreviewListContextMenu(animePreviewUI, i);
     }
 
 }

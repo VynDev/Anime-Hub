@@ -7,7 +7,7 @@ class Settings
 public:
 
 public:
-    Settings(const QString& settingsPath);
+    Settings();
 
     QString GetPath() const;
     bool ShouldFetchImages() const;

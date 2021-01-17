@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QNetworkReply>
+#include "Anime.h"
 
 namespace Ui {
 class AnimePreviewUI;
@@ -10,13 +11,16 @@ class AnimePreviewUI;
 
 class Anime;
 
-class AnimePreviewUI : public QWidget
+class AnimePreviewUI : public QWidget, public Anime
 {
     Q_OBJECT
 
 public:
-    AnimePreviewUI(Anime* anime, QWidget *parent = nullptr);
+    AnimePreviewUI(QWidget *parent = nullptr);
+    AnimePreviewUI(const Anime& anime, QWidget *parent = nullptr);
     ~AnimePreviewUI();
+
+    void Refresh();
 
     void paintEvent(QPaintEvent *);
 

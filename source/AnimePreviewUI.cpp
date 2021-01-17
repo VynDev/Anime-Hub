@@ -17,17 +17,45 @@ QString DateNumber(int number) {
 }
 
 // [Todo] Replace the Anime* anime to a reference, because we don't need to store it and it's misleading for the caller.
-AnimePreviewUI::AnimePreviewUI(Anime* anime, QWidget *parent) : QWidget(parent),
+AnimePreviewUI::AnimePreviewUI(QWidget *parent) : QWidget(parent),
     ui(new Ui::AnimePreviewUI)
 {
     ui->setupUi(this);
-    ui->titleLabel->setText(anime->GetTitle());
-    ui->descriptionLabel->setText(anime->GetDescription());
-    ui->coverImageLabel->setText(anime->GetCoverImageUrl());
-    ApplyCoverImageByUrl(anime->GetCoverImageUrl());
+
+}
+
+AnimePreviewUI::AnimePreviewUI(const Anime& anime, QWidget *parent) : QWidget(parent),
+    ui(new Ui::AnimePreviewUI)
+{
+    ui->setupUi(this);
+
+    SetTitle(anime.GetTitle());
+    SetDescription(anime.GetDescription());
+    SetCoverImageByUrl(anime.GetCoverImageUrl());
+    SetGenres(anime.GetGenres());
+    SetEpisodes(anime.GetEpisodes());
+    SetStartDay(anime.GetStartDay());
+    SetStartMonth(anime.GetStartMonth());
+    SetStartDay(anime.GetStartDay());
+    SetEndDay(anime.GetStartDay());
+    SetEndMonth(anime.GetEndMonth());
+    SetEndDay(anime.GetEndDay());
+    SetStatus(anime.GetStatus());
+    Refresh();
+}
+
+AnimePreviewUI::~AnimePreviewUI() {
+    delete ui;
+}
+
+void AnimePreviewUI::Refresh() {
+    ui->titleLabel->setText(GetTitle());
+    ui->descriptionLabel->setText(GetDescription());
+    ui->coverImageLabel->setText(GetCoverImageUrl());
+    ApplyCoverImageByUrl(GetCoverImageUrl());
 
     QString genreString;
-    for (const QString& genreName : anime->GetGenres()) {
+    for (const QString& genreName : GetGenres()) {
         if (!genreString.isEmpty())
             genreString += ", ";
         genreString += genreName;
@@ -35,14 +63,10 @@ AnimePreviewUI::AnimePreviewUI(Anime* anime, QWidget *parent) : QWidget(parent),
 
     ui->genresLabel->setText(genreString);
 
-    ui->statusLabel->setText(anime->GetStatus());
-    ui->episodesLabel->setText(QString::number(anime->GetEpisodes()) + " episode(s)");
+    ui->statusLabel->setText(GetStatus());
+    ui->episodesLabel->setText(QString::number(GetEpisodes()) + " episode(s)");
 
-    ui->datesLabel->setText(DateNumber(anime->GetStartDay()) + "/" + DateNumber(anime->GetStartMonth()) + "/" + DateNumber(anime->GetStartYear()) + " - " + DateNumber(anime->GetEndDay()) + "/" + DateNumber(anime->GetEndMonth()) + "/" + DateNumber(anime->GetEndYear()));
-}
-
-AnimePreviewUI::~AnimePreviewUI() {
-    delete ui;
+    ui->datesLabel->setText(DateNumber(GetStartDay()) + "/" + DateNumber(GetStartMonth()) + "/" + DateNumber(GetStartYear()) + " - " + DateNumber(GetEndDay()) + "/" + DateNumber(GetEndMonth()) + "/" + DateNumber(GetEndYear()));
 }
 
 // This method directly fetch the image with the given url, so it may takes some times before it applies

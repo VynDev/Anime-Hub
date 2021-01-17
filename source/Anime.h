@@ -6,7 +6,7 @@
 class Anime
 {
 public:
-    Anime(const QString& title);
+    Anime();
 
     const QString& GetTitle() const;
     const QString& GetDescription() const;

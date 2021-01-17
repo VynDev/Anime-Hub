@@ -11,6 +11,8 @@
 #include "Settings.h"
 
 class Anime;
+class SettingsUI;
+class AboutUI;
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class AnimeHub; }
@@ -34,11 +36,11 @@ public:
     void DeleteList(const QString& listName);
 
     const QVector<Anime *>& GetAnimes() const;
-    void AddAnimeToList(const QString& listName, Anime* anime);
-    void RemoveAnimeFromList(const QString& listName, Anime* anime);
+    void AddAnimeToList(const QString& listName, const Anime& anime);
+    void RemoveAnimeFromList(const QString& listName, int index);
 
-    void SetupAnimePreviewSearchContextMenu(AnimePreviewUI* animePreviewUI, Anime* anime);
-    void SetupAnimePreviewListContextMenu(AnimePreviewUI* animePreviewUI, Anime* anime, const QString& selectedList);
+    void SetupAnimePreviewSearchContextMenu(AnimePreviewUI* animePreviewUI);
+    void SetupAnimePreviewListContextMenu(AnimePreviewUI* animePreviewUI, int index);
 
     void SearchAnime(const QString& animeName);
 
@@ -64,6 +66,9 @@ private:
     Ui::AnimeHub *ui;
 
     Settings settings;
+
+    SettingsUI *settingsUI;
+    AboutUI *aboutUI;
 
     static QNetworkAccessManager *manager;
 
