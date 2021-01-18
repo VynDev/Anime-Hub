@@ -14,12 +14,13 @@
 - [Mostly-done] Prettier anime list preview.
 - [Done] Delete a list.
 - [Done] Add '0' to date number if they are smaller than 10
+- [Done] Fix design pattern error and memory leaks
 
 ## Ideas
 
 - Smaller anime preview option (that fit on 1 line)
 - Filters & Sorting
 - Cache images for offline use.
-- Import from Anilist.
-- Full sync from Anilist.
+- [WIP] Import from Anilist.
+    - [WIP] Optimization
 - Adding an anime manually.

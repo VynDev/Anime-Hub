@@ -1,5 +1,11 @@
 # Changelog
 
+Versions starting with a 0 are considered as "In development"
+
+## [0.3.0] - 2020-01-[?]
+
+[Todo]
+
 ## [0.2.0] - 2020-01-13
 
 ### Added

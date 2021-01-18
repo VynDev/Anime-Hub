@@ -18,6 +18,7 @@
 #include "Anime.h"
 #include "SettingsUI.h"
 #include "AboutUI.h"
+#include "AniListImport.h"
 
 // [Todo] Fix pattern design errors and add comments when needed.
 
@@ -31,6 +32,7 @@ AnimeHub::AnimeHub(QWidget *parent) : QMainWindow(parent)
     AnimeHub::manager = new QNetworkAccessManager(this);
     settingsUI = new SettingsUI(&settings, this);
     aboutUI = new AboutUI(this);
+	aniListImport = new AniListImport(this);
 
     if (!settings.ShouldUseSystemTheme())
         LoadStyle(":/styles/vyn-dark.qss");
@@ -44,7 +46,9 @@ AnimeHub::AnimeHub(QWidget *parent) : QMainWindow(parent)
 
     connect(ui->actionSettings, SIGNAL(triggered()), this, SLOT(OpenSettings()));
     connect(ui->actionAbout, SIGNAL(triggered()), this, SLOT(OpenAbout()));
+	connect(ui->actionImport_from_Anilist, SIGNAL(triggered()), this, SLOT(OpenAnilistImport()));
     ui->animeListLayout->setAlignment(Qt::AlignTop);
+    ui->animeSearchResult->setAlignment(Qt::AlignTop);
 }
 
 AnimeHub::~AnimeHub() {
@@ -57,6 +61,10 @@ AnimeHub::~AnimeHub() {
             delete list[i];
         }
     }
+}
+
+const Settings& AnimeHub::GetSettings() const {
+	return settings;
 }
 
 void AnimeHub::ResetStyle() {
@@ -77,6 +85,12 @@ void AnimeHub::OpenSettings() {
 void AnimeHub::OpenAbout() {
     std::cout << "Opening about" << std::endl;
     aboutUI->show();
+}
+
+void AnimeHub::OpenAnilistImport() {
+	std::cout << "Opening Anilist import" << std::endl;
+	aniListImport->show();
+	//ImportFromAnilist("Vyn", "Completed", selectedList);
 }
 
 void AnimeHub::Save() {
@@ -154,11 +168,9 @@ const QVector<Anime *>& AnimeHub::GetAnimes() const {
 }
 
 void AnimeHub::AddAnimeToList(const QString& listName, const Anime& anime) {
-    std::cout << "Adding anime" << std::endl;
+    std::cout << "Adding anime: " << anime.GetTitle().toStdString() << std::endl;
 
     lists[listName].push_back(new Anime(anime));
-    RefreshAnimeListUI();
-    Save();
 }
 
 void AnimeHub::RemoveAnimeFromList(const QString &listName, int index) {
@@ -166,16 +178,12 @@ void AnimeHub::RemoveAnimeFromList(const QString &listName, int index) {
 
     delete lists[listName][index];
     lists[listName].remove(index, 1);
-    RefreshAnimeListUI();
-    Save();
 }
 
 void AnimeHub::CreateList(const QString& listName) {
-    if (listName.isEmpty() || lists.find(listName) != lists.end())
+    if (listName.isEmpty() || lists.find(listName) != lists.end()) // [Todo] Replace HasList
         return ;
     lists[listName];
-    RefreshListsUI();
-    Save();
 }
 
 void AnimeHub::SelectList(const QString& listName) {
@@ -185,8 +193,10 @@ void AnimeHub::SelectList(const QString& listName) {
 
 void AnimeHub::DeleteList(const QString &listName) {
     lists.remove(listName);
-    RefreshListsUI();
-    Save();
+}
+
+bool AnimeHub::HasList(const QString& listName) const {
+	return lists.find(listName) != lists.end();
 }
 
 void AnimeHub::SetupAnimePreviewSearchContextMenu(AnimePreviewUI* animePreviewUI) {
@@ -207,6 +217,8 @@ void AnimeHub::SetupAnimePreviewSearchContextMenu(AnimePreviewUI* animePreviewUI
         for (auto action : actions.keys()) {
             if (selectedAction == action) {
                 AddAnimeToList(actions[action], *animePreviewUI);
+				RefreshAnimeListUI();
+				Save();
             }
         }
     });
@@ -229,13 +241,16 @@ void AnimeHub::SetupAnimePreviewListContextMenu(AnimePreviewUI* animePreviewUI, 
             auto answer = msgBox.exec();
             if (answer == QMessageBox::Yes)
                 RemoveAnimeFromList(selectedList, index);
+				RefreshAnimeListUI();
+				Save();
         }
     });
 }
 
 void AnimeHub::SearchAnime(const QString& animeName) {
     std::cout << "Fetching page" << std::endl;
-
+	
+	// Please keep the whitespaces with a REAL SPACE, NOT TAB for graphQL queries for the moment
     QByteArray body =
     "{\
         \"query\": \"\
@@ -249,27 +264,7 @@ void AnimeHub::SearchAnime(const QString& animeName) {
                   perPage\
                 }\
                 media(id: $id, search: $search, type: ANIME) {\
-                  id\
-                  title {\
-                    romaji\
-                  }\
-                  description\
-                  episodes\
-                  genres\
-                  status\
-                  startDate {\
-                    year\
-                    month\
-                    day\
-                  }\
-                  endDate {\
-                    year\
-                    month\
-                    day\
-                  }\
-                  coverImage {\
-                    large\
-                 }\
+                  " + QByteArray(GRAPHQL_ANILIST_MEDIA_CONTENT) + "\
                 }\
               }\
             }\
@@ -277,7 +272,8 @@ void AnimeHub::SearchAnime(const QString& animeName) {
         \"variables\": {\
             \"search\": \"" + QByteArray(animeName.toUtf8()) + "\"\
         }\
-    }";
+	}";
+	std::cout << body.toStdString() << std::endl;
     QNetworkRequest request;
     request.setUrl(QUrl("https://graphql.anilist.co"));
     request.setRawHeader("Content-Type", "application/json");
@@ -303,10 +299,12 @@ void AnimeHub::SearchAnime(const QString& animeName) {
         }
 
         answer.replace(QRegularExpression("\\\\(n|r)"), "");
-
+	
         std::cout << "Response:" << std::endl << answer.toStdString() << std::endl;
 
         JSON::Object json(answer.toStdString(), JSON::SOURCE::CONTENT);
+	
+		;
         if (!json.IsValid()) {
             std::cout << "Error while parsing json: " << json.GetError() << std::endl;
             return ;
@@ -400,7 +398,7 @@ void AnimeHub::on_searchLineEdit_returnPressed() {
 }
 
 void AnimeHub::on_listsComboBox_currentTextChanged(const QString &listName) {
-    if (listName.isEmpty() || lists.find(listName) == lists.end())
+    if (listName.isEmpty() || lists.find(listName) == lists.end()) // [Todo] replace HasList
         return ;
     SelectList(listName);
 }
@@ -408,6 +406,8 @@ void AnimeHub::on_listsComboBox_currentTextChanged(const QString &listName) {
 void AnimeHub::on_newListButton_clicked() {
     QString newListName = QInputDialog::getText(this, "New list", "Chose a name for the new list");
     CreateList(newListName);
+	RefreshListsUI();
+    Save();
 }
 
 void AnimeHub::on_deleteListButton_clicked() {
@@ -415,26 +415,30 @@ void AnimeHub::on_deleteListButton_clicked() {
     msgBox.setText("Do you really want to delete the current list ?");
     msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     auto answer = msgBox.exec();
-    if (answer == QMessageBox::Yes)
-        DeleteList(ui->listsComboBox->currentText());
+	if (answer == QMessageBox::Yes) {
+		DeleteList(ui->listsComboBox->currentText());
+		RefreshListsUI();
+		Save();
+	}
 }
 
 // UI related methods
 
 void AnimeHub::RefreshAnimeListUI() {
+	std::cout << "size before: " << animeListPreviewListUIs.size() << std::endl;
     while (!animeListPreviewListUIs.isEmpty()) {
         AnimePreviewUI* animePreviewUI = animeListPreviewListUIs.takeLast();
         ui->animeListLayout->removeWidget(animePreviewUI);
         delete animePreviewUI;
     }
-
+	std::cout << "size middle: " << animeListPreviewListUIs.size() << std::endl;
     for (int i = 0; i < lists[selectedList].length(); ++i) {
         AnimePreviewUI* animePreviewUI = new AnimePreviewUI(*(lists[selectedList][i]), this);
         animeListPreviewListUIs.push_back(animePreviewUI);
         ui->animeListLayout->addWidget(animePreviewUI);
         SetupAnimePreviewListContextMenu(animePreviewUI, i);
     }
-
+	std::cout << "size after: " << animeListPreviewListUIs.size() << std::endl;
 }
 
 void AnimeHub::RefreshListsUI() {
