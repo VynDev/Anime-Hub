@@ -128,7 +128,7 @@ void AniList::SearchAnimes(const QString& title, std::function<void(QVector<Anim
 			}
 
 			if (media->IsObject() && media->AsObject()["endDate"].IsObject()) {
-				JSON::Object& endDateJson = media->AsObject()["startDate"].AsObject();
+				JSON::Object& endDateJson = media->AsObject()["endDate"].AsObject();
 				anime.SetEndYear(endDateJson["year"].IsNumber() ? endDateJson["year"].AsNumber() : -1);
 				anime.SetEndMonth(endDateJson["month"].IsNumber() ? endDateJson["month"].AsNumber() : -1);
 				anime.SetEndDay(endDateJson["day"].IsNumber() ? endDateJson["day"].AsNumber() : -1);
@@ -226,7 +226,7 @@ void AniList::FetchUserLists(const QString userName, std::function<void(QMap<QSt
 				}
 	
 				if (media->IsObject() && media->AsObject()["endDate"].IsObject()) {
-					JSON::Object& endDateJson = media->AsObject()["startDate"].AsObject();
+					JSON::Object& endDateJson = media->AsObject()["endDate"].AsObject();
 					anime.SetEndYear(endDateJson["year"].IsNumber() ? endDateJson["year"].AsNumber() : -1);
 					anime.SetEndMonth(endDateJson["month"].IsNumber() ? endDateJson["month"].AsNumber() : -1);
 					anime.SetEndDay(endDateJson["day"].IsNumber() ? endDateJson["day"].AsNumber() : -1);

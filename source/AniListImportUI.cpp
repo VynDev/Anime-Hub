@@ -4,6 +4,7 @@
 #include "AnimeHub.h"
 #include <QtNetwork>
 #include <QByteArray>
+#include <QMessageBox>
 
 AniListImportUI::AniListImportUI(QWidget *parent) :
 	QMainWindow(parent),
@@ -23,7 +24,7 @@ void AniListImportUI::on_findUserButton_clicked()
 	if (ui->userNameLineEdit->text().isEmpty())
 		return ;
 	std::cout << "Fetching user" << std::endl;
-	aniList.FetchUserLists(ui->userNameLineEdit->text(), [=] (QMap<QString, QVector<Anime>> lists) {
+	aniList.FetchUserLists(ui->userNameLineEdit->text(), [&] (QMap<QString, QVector<Anime>> lists) {
 		std::cout << "Received lists" << std::endl;
 		for (const QString& listName : lists.keys()) {
 			ui->aniListListsComboBox->addItem(listName);
@@ -33,7 +34,9 @@ void AniListImportUI::on_findUserButton_clicked()
 		ui->aniListListsComboBox->setEnabled(true);
 		ui->newListLineEdit->setEnabled(true);
 		ui->importButton->setEnabled(true);
-	}, []{});
+	}, [&]{
+		QMessageBox::warning(this, "Error", "Couldn't fetch animes");
+	});
 }
 
 void AniListImportUI::on_importButton_clicked()

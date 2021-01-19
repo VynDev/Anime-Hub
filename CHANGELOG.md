@@ -4,7 +4,24 @@ Versions starting with a 0 are considered as "In development"
 
 ## [0.3.0] - 2020-01-[?]
 
-[Todo]
+This version aim to provide a better support for AniList and a more stable software.
+
+### Added
+
+- AniList Import (with just an username).
+- "About" window (Author, version, license, creadits, etc.).
+- Removing anime from a list from the context menu (right click).
+- Deleting list.
+- Error messages (simple atm).
+
+### Changed
+
+- Anime preview UI has now better formatting
+
+### Fixed
+
+- Design pattern
+- Memory leaks
 
 ## [0.2.0] - 2020-01-13
 

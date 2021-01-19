@@ -34,10 +34,10 @@ AnimePreviewUI::AnimePreviewUI(const Anime& anime, QWidget *parent) : QWidget(pa
     SetCoverImageByUrl(anime.GetCoverImageUrl());
     SetGenres(anime.GetGenres());
     SetEpisodes(anime.GetEpisodes());
-    SetStartDay(anime.GetStartDay());
+    SetStartYear(anime.GetStartYear());
     SetStartMonth(anime.GetStartMonth());
     SetStartDay(anime.GetStartDay());
-    SetEndDay(anime.GetStartDay());
+    SetEndYear(anime.GetEndYear());
     SetEndMonth(anime.GetEndMonth());
     SetEndDay(anime.GetEndDay());
     SetStatus(anime.GetStatus());
@@ -51,7 +51,7 @@ AnimePreviewUI::~AnimePreviewUI() {
 void AnimePreviewUI::Refresh() {
     ui->titleLabel->setText(GetTitle());
     ui->descriptionLabel->setText(GetDescription());
-    ui->coverImageLabel->setText(GetCoverImageUrl());
+    ui->coverImageLabel->setText("");
 	if (GetSettings().ShouldFetchImages())
 		ApplyCoverImageByUrl(GetCoverImageUrl());
 

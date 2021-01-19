@@ -86,7 +86,6 @@ void AnimeHub::OpenAnilistImport() {
 	std::cout << "Opening Anilist import" << std::endl;
 	AniListImportUI* aniListImport = new AniListImportUI(this);
 	aniListImport->show();
-	//ImportFromAnilist("Vyn", "Completed", selectedList);
 }
 
 void AnimeHub::Save() {
@@ -245,7 +244,7 @@ void AnimeHub::SetupAnimePreviewListContextMenu(AnimePreviewUI* animePreviewUI, 
 
 // This method directly affect the UI, displaying results in the "Search" tab
 void AnimeHub::SearchAnime(const QString& animeName) {
-	aniList.SearchAnimes(animeName, [=] (QVector<Anime> animes) {
+	aniList.SearchAnimes(animeName, [&] (QVector<Anime> animes) {
 
 		while (!animePreviewSearchUIs.isEmpty()) {
             AnimePreviewUI* animePreviewUI = animePreviewSearchUIs.takeLast();
@@ -262,7 +261,9 @@ void AnimeHub::SearchAnime(const QString& animeName) {
             ui->animeSearchResult->addWidget(animePreviewUI);
             SetupAnimePreviewSearchContextMenu(animePreviewUI);
         }
-	}, []{}); // [Todo] Handle errors
+	}, [&]{
+		QMessageBox::warning(this, "Error", "Couldn't fetch animes");
+	});
 }
 
 // Events
