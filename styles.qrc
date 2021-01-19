@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>styles/vyn-dark.qss</file>
+        <file>styles/arrow.png</file>
     </qresource>
 </RCC>

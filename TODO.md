@@ -21,6 +21,6 @@
 - Smaller anime preview option (that fit on 1 line)
 - Filters & Sorting
 - Cache images for offline use.
-- [WIP] Import from Anilist.
-    - [WIP] Optimization
+- [Done] Import from Anilist.
+    - [Done] Optimization
 - Adding an anime manually.

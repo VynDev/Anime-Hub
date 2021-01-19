@@ -2,7 +2,36 @@ QMainWindow, QInputDialog {
     background: rgb(50, 50, 50);
 }
 
-QPushButton, QComboBox, QComboBox::drop-down, QComboBox QAbstractItemView {
+QComboBox {
+	border: 1px solid gray;
+	color: rgb(225, 225, 225);
+}
+
+QComboBox::drop-down {
+    border: none;
+}
+
+QComboBox:!editable {
+	background-color: rgb(100, 100, 100);
+}
+
+QComboBox:disabled {
+	background-color: rgb(75, 75, 75);
+	color: rgb(150, 150, 150);
+}
+
+QComboBox::down-arrow {
+    image: url(:/styles/arrow.png);
+}
+
+QComboBox QAbstractItemView {
+	border: 1px solid gray;
+	background-color: rgb(90, 90, 90);
+	color: rgb(225, 225, 225);
+	padding: 0;
+}
+
+QPushButton {
     background-color: rgb(100, 100, 100);
 	border: none;
 	padding: 4px;
@@ -13,6 +42,11 @@ QPushButton, QComboBox, QComboBox::drop-down, QComboBox QAbstractItemView {
 
 QPushButton:hover {
 	background-color: rgb(110, 110, 110);
+}
+
+QPushButton:disabled {
+	background-color: rgb(75, 75, 75);
+	color: rgb(150, 150, 150);
 }
 
 QTabBar, QTabBar::tab, #searchTab, #listsTab, QTabWidget::pane {
@@ -27,6 +61,11 @@ QLineEdit {
 	background: rgb(100, 100, 100);
 	color: rgb(200, 200, 200);
 	padding: 4px;
+}
+
+QLineEdit:disabled {
+	background-color: rgb(75, 75, 75);
+	color: rgb(150, 150, 150);
 }
 
 #scrollArea, #scrollArea_2 {
