@@ -18,23 +18,22 @@
 #include "Anime.h"
 #include "SettingsUI.h"
 #include "AboutUI.h"
-#include "AniListImport.h"
+#include "AniListImportUI.h"
 
 // [Todo] Fix pattern design errors and add comments when needed.
 
 QNetworkAccessManager* AnimeHub::manager = nullptr;
 
 AnimeHub::AnimeHub(QWidget *parent) : QMainWindow(parent)
-    , ui(new Ui::AnimeHub)
+    , ui(new Ui::AnimeHub), aniList(this)
 {
     ui->setupUi(this);
 
     AnimeHub::manager = new QNetworkAccessManager(this);
-    settingsUI = new SettingsUI(&settings, this);
+    settingsUI = new SettingsUI(&GetSettings(), this);
     aboutUI = new AboutUI(this);
-	aniListImport = new AniListImport(this);
 
-    if (!settings.ShouldUseSystemTheme())
+    if (!GetSettings().ShouldUseSystemTheme())
         LoadStyle(":/styles/vyn-dark.qss");
 
     Load(); // Anime lists
@@ -63,10 +62,6 @@ AnimeHub::~AnimeHub() {
     }
 }
 
-const Settings& AnimeHub::GetSettings() const {
-	return settings;
-}
-
 void AnimeHub::ResetStyle() {
     setStyleSheet("");
 }
@@ -89,6 +84,7 @@ void AnimeHub::OpenAbout() {
 
 void AnimeHub::OpenAnilistImport() {
 	std::cout << "Opening Anilist import" << std::endl;
+	AniListImportUI* aniListImport = new AniListImportUI(this);
 	aniListImport->show();
 	//ImportFromAnilist("Vyn", "Completed", selectedList);
 }
@@ -123,11 +119,11 @@ void AnimeHub::Save() {
             animeJson["endDate"].AsObject()["day"] = anime->GetEndDay();
         }
     }
-    json.Save(settings.GetPath().toStdString());
+    json.Save(GetSettings().GetPath().toStdString());
 }
 
 void AnimeHub::Load() {
-    JSON::Object json(settings.GetPath().toStdString());
+    JSON::Object json(GetSettings().GetPath().toStdString());
     if (json.IsValid()) {
         for (auto& listJson : json["lists"].AsArray().GetElements()) {
             lists[QString::fromStdString(listJson->AsObject()["name"].AsString())];
@@ -247,144 +243,26 @@ void AnimeHub::SetupAnimePreviewListContextMenu(AnimePreviewUI* animePreviewUI, 
     });
 }
 
+// This method directly affect the UI, displaying results in the "Search" tab
 void AnimeHub::SearchAnime(const QString& animeName) {
-    std::cout << "Fetching page" << std::endl;
-	
-	// Please keep the whitespaces with a REAL SPACE, NOT TAB for graphQL queries for the moment
-    QByteArray body =
-    "{\
-        \"query\": \"\
-            query ($id: Int, $page: Int, $perPage: Int, $search: String) {\
-              Page(page: $page, perPage: $perPage) {\
-                pageInfo {\
-                  total\
-                  currentPage\
-                  lastPage\
-                  hasNextPage\
-                  perPage\
-                }\
-                media(id: $id, search: $search, type: ANIME) {\
-                  " + QByteArray(GRAPHQL_ANILIST_MEDIA_CONTENT) + "\
-                }\
-              }\
-            }\
-        \",\
-        \"variables\": {\
-            \"search\": \"" + QByteArray(animeName.toUtf8()) + "\"\
-        }\
-	}";
-	std::cout << body.toStdString() << std::endl;
-    QNetworkRequest request;
-    request.setUrl(QUrl("https://graphql.anilist.co"));
-    request.setRawHeader("Content-Type", "application/json");
-    request.setRawHeader("Content-Length", QByteArray::number(body.size()));
+	aniList.SearchAnimes(animeName, [=] (QVector<Anime> animes) {
 
-    auto* reply = manager->post(request, body);
-    connect(reply, &QNetworkReply::finished, [=] {
-        if (reply->error()) {
-            std::cout << "Error!" << std::endl;
-            std::cout << reply->errorString().toStdString() << std::endl;
-            std::cout << reply->error() << std::endl;
-            QString answer = reply->readAll();
-            std::cout << answer.toStdString() << std::endl;
-            return;
-        }
-        QString answer = reply->readAll();
-        QRegularExpression rx("(\\\\u([0-9a-fA-F]{4}))");
-        QRegularExpressionMatch rxMatch;
-        int pos = 0;
-        while ((rxMatch = rx.match(answer, pos)).hasMatch()) {
-            answer.replace(rxMatch.capturedStart(), 6, QChar(rxMatch.captured(2).toUShort(0, 16)));
-            pos = rxMatch.capturedStart() + 1;
-        }
-
-        answer.replace(QRegularExpression("\\\\(n|r)"), "");
-	
-        std::cout << "Response:" << std::endl << answer.toStdString() << std::endl;
-
-        JSON::Object json(answer.toStdString(), JSON::SOURCE::CONTENT);
-	
-		;
-        if (!json.IsValid()) {
-            std::cout << "Error while parsing json: " << json.GetError() << std::endl;
-            return ;
-        }
-        auto& medias = json["data"].AsObject()["Page"].AsObject()["media"].AsArray().GetElements();
-
-        while (!animePreviewSearchUIs.isEmpty()) {
+		while (!animePreviewSearchUIs.isEmpty()) {
             AnimePreviewUI* animePreviewUI = animePreviewSearchUIs.takeLast();
             ui->animeSearchResult->removeWidget(animePreviewUI);
             delete animePreviewUI;
         }
 
-        // This loop will check each field of the media before adding it to the Anime object.
-        for (auto& media : medias) {
-            AnimePreviewUI *anime = new AnimePreviewUI(this);
-            if (media->IsObject() && media->AsObject()["title"].IsObject() && media->AsObject()["title"].AsObject()["romaji"].IsString()) {
-                anime->SetTitle(QString::fromStdString(media->AsObject()["title"].AsObject()["romaji"].AsString()));
-            }
-            else {
-               anime->SetTitle("[Unknown]");
-            }
+        for (Anime& anime : animes) {
+            AnimePreviewUI *animePreviewUI = new AnimePreviewUI(anime, this);
 
-            if (media->IsObject() && media->AsObject()["description"].IsString()) {
-                anime->SetDescription(QString::fromStdString(media->AsObject()["description"].AsString()));
-            }
-            else {
-                anime->SetDescription("[No description provided]");
-            }
-
-            if (media->IsObject() && media->AsObject()["coverImage"].IsObject() && media->AsObject()["coverImage"].AsObject()["large"].IsString()) {
-                if (settings.ShouldFetchImages())
-                    anime->SetCoverImageByUrl(QString::fromStdString(media->AsObject()["coverImage"].AsObject()["large"].AsString()).replace("\\", ""));
-            }
-            else {
-                anime->SetCoverImageByUrl("[No image]");
-            }
-
-            if (media->IsObject() && media->AsObject()["status"].IsString()) {
-                anime->SetStatus(QString::fromStdString(media->AsObject()["status"].AsString()));
-            }
-            else {
-                anime->SetStatus("[Unknown status]");
-            }
-
-            if (media->IsObject() && media->AsObject()["episodes"].IsNumber()) {
-                anime->SetEpisodes(media->AsObject()["episodes"].AsNumber());
-            }
-            else {
-                anime->SetEpisodes(-1);
-            }
-
-            if (media->IsObject() && media->AsObject()["startDate"].IsObject()) {
-                JSON::Object& startDateJson = media->AsObject()["startDate"].AsObject();
-                anime->SetStartYear(startDateJson["year"].IsNumber() ? startDateJson["year"].AsNumber() : -1);
-                anime->SetStartMonth(startDateJson["month"].IsNumber() ? startDateJson["month"].AsNumber() : -1);
-                anime->SetStartDay(startDateJson["day"].IsNumber() ? startDateJson["day"].AsNumber() : -1);
-            }
-
-            if (media->IsObject() && media->AsObject()["endDate"].IsObject()) {
-                JSON::Object& endDateJson = media->AsObject()["startDate"].AsObject();
-                anime->SetEndYear(endDateJson["year"].IsNumber() ? endDateJson["year"].AsNumber() : -1);
-                anime->SetEndMonth(endDateJson["month"].IsNumber() ? endDateJson["month"].AsNumber() : -1);
-                anime->SetEndDay(endDateJson["day"].IsNumber() ? endDateJson["day"].AsNumber() : -1);
-            }
-
-            if (media->IsObject() && media->AsObject()["genres"].IsArray()) {
-                for (int i = 0; i < media->AsObject()["genres"].AsArray().GetLenth(); ++i) {
-                    if (media->AsObject()["genres"].AsArray()[i].IsString())
-                        anime->AddGenre(QString::fromStdString(media->AsObject()["genres"].AsArray()[i].AsString()));
-                }
-            }
-
-            anime->Refresh();
-            anime->setObjectName("animePreviewUI");
-            animePreviewSearchUIs.push_back(anime);
-            ui->animeSearchResult->addWidget(anime);
-
-            SetupAnimePreviewSearchContextMenu(anime);
+            animePreviewUI->Refresh();
+            animePreviewUI->setObjectName("animePreviewUI");
+            animePreviewSearchUIs.push_back(animePreviewUI);
+            ui->animeSearchResult->addWidget(animePreviewUI);
+            SetupAnimePreviewSearchContextMenu(animePreviewUI);
         }
-    });
+	}, []{}); // [Todo] Handle errors
 }
 
 // Events
@@ -425,20 +303,18 @@ void AnimeHub::on_deleteListButton_clicked() {
 // UI related methods
 
 void AnimeHub::RefreshAnimeListUI() {
-	std::cout << "size before: " << animeListPreviewListUIs.size() << std::endl;
     while (!animeListPreviewListUIs.isEmpty()) {
         AnimePreviewUI* animePreviewUI = animeListPreviewListUIs.takeLast();
         ui->animeListLayout->removeWidget(animePreviewUI);
         delete animePreviewUI;
     }
-	std::cout << "size middle: " << animeListPreviewListUIs.size() << std::endl;
+
     for (int i = 0; i < lists[selectedList].length(); ++i) {
         AnimePreviewUI* animePreviewUI = new AnimePreviewUI(*(lists[selectedList][i]), this);
         animeListPreviewListUIs.push_back(animePreviewUI);
         ui->animeListLayout->addWidget(animePreviewUI);
         SetupAnimePreviewListContextMenu(animePreviewUI, i);
     }
-	std::cout << "size after: " << animeListPreviewListUIs.size() << std::endl;
 }
 
 void AnimeHub::RefreshListsUI() {

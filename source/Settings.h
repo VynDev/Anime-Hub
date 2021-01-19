@@ -33,4 +33,6 @@ private:
 
 };
 
+Settings& GetSettings(); // Singleton
+
 #endif // SETTINGS_H

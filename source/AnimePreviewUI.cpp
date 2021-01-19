@@ -52,7 +52,7 @@ void AnimePreviewUI::Refresh() {
     ui->titleLabel->setText(GetTitle());
     ui->descriptionLabel->setText(GetDescription());
     ui->coverImageLabel->setText(GetCoverImageUrl());
-	if (static_cast<AnimeHub *>(this->parent())->GetSettings().ShouldFetchImages())
+	if (GetSettings().ShouldFetchImages())
 		ApplyCoverImageByUrl(GetCoverImageUrl());
 
     QString genreString;

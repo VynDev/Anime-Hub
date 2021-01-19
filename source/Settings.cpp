@@ -4,6 +4,11 @@
 #include "json-parser/JSON.h"
 #include <QDir>
 
+Settings& GetSettings() {
+	static Settings settings;
+	return settings;
+};
+
 // [Todo] Remove settingsPath arg
 Settings::Settings() :
     settingsPath(QDir::homePath() + "/.config/Anime-Hub/settings.json"),

@@ -9,6 +9,7 @@
 #include <QtNetwork/QNetworkReply>
 #include "AnimePreviewUI.h"
 #include "Settings.h"
+#include "AniList.h"
 
 // Please keep the whitespaces with a REAL SPACE, NOT TAB for graphQL queries for the moment
 #define GRAPHQL_ANILIST_MEDIA_CONTENT "\
@@ -37,7 +38,7 @@
 class Anime;
 class SettingsUI;
 class AboutUI;
-class AniListImport;
+class AniListImportUI;
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class AnimeHub; }
@@ -46,14 +47,12 @@ QT_END_NAMESPACE
 class AnimeHub : public QMainWindow
 {
 	Q_OBJECT
-
+ 
 public:
 	AnimeHub(QWidget *parent = nullptr);
 	~AnimeHub();
 
 	static QNetworkAccessManager& GetNetworkManager();
-	
-	const Settings& GetSettings() const;
 
 	void Load();
 	void Save();
@@ -96,13 +95,11 @@ public slots:
 private:
 	Ui::AnimeHub *ui;
 
-	Settings settings;
-
 	SettingsUI *settingsUI;
 	AboutUI *aboutUI;
-	AniListImport *aniListImport;
 
 	static QNetworkAccessManager *manager;
+	AniList aniList;
 
 	QVector<Anime *> animes; // deprecated
 	QMap<QString, QVector<Anime *>> lists;

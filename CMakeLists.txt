@@ -47,9 +47,11 @@ set(PROJECT_SOURCES
         ${SOURCE_DIR}/AboutUI.cpp
         ${SOURCE_DIR}/AboutUI.h
         ${SOURCE_DIR}/AboutUI.ui
-		${SOURCE_DIR}/AniListImport.cpp
-        ${SOURCE_DIR}/AniListImport.h
-        ${SOURCE_DIR}/AniListImport.ui
+		${SOURCE_DIR}/AniListImportUI.cpp
+        ${SOURCE_DIR}/AniListImportUI.h
+        ${SOURCE_DIR}/AniListImportUI.ui
+		${SOURCE_DIR}/AniList.cpp
+        ${SOURCE_DIR}/AniList.h
         styles.qrc
 )
 
